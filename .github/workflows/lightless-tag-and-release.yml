@@ -4,37 +4,60 @@ on:
   push:
     branches: [ master ]
 
+env:
+  DOTNET_VERSION: 9.x
+  SOLUTION_PATH: LightlessSync.sln
+
 jobs:
   tag-and-release:
     runs-on: ubuntu-latest
 
     steps:
-    - name: checkout lightless
+    - name: Checkout Lightless
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - name: get version from lightless proj
-      id: get_version
+    - name: Setup .NET 9 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.x
+        cache: true
+
+    - name: Echo .NET Version
+      run: dotnet --version
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build LightlessSync
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish LightlessSync
+      run: dotnet publish --configuration Release --no-build --output publish_output
+    
+    - name: Get version
+      id: package_version
       uses: KageKirin/get-csproj-version@v0
       with:
         file: LightlessSync/LightlessSync.csproj
-        
 
-    - name: Create Git tag
-      run: |
-        echo "Tagging version ${{ steps.test.get_version.version }}"
-        git config user.name "GitHub Action"
-        git config user.email "action@github.com"
-        git tag ${{ steps.test.get_version.version }}
-        git push origin ${{ steps.test.get_version.version }}
+    - name: Display version
+      run: | 
+          echo "Version: ${{ steps.package_version.outputs.version }}"
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ steps.test.get_version.version }}
-        name: Release ${{ steps.test.get_version.version }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Create Git tag
+    #   run: |
+    #     echo "Tagging version ${{ steps.get_version.version }}"
+    #     git config user.name "GitHub Action"
+    #     git config user.email "action@github.com"
+    #     git tag ${{ steps.test.get_version.version }}
+    #     git push origin ${{ steps.test.get_version.version }}
+
+    # - name: Create GitHub Release
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     tag_name: ${{ steps.test.get_version.version }}
+    #     name: Release ${{ steps.test.get_version.version }}
+    #     draft: false
+    #     prerelease: false
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
