@@ -49,20 +49,33 @@ jobs:
       run: | 
           echo "Version: ${{ steps.package_version.outputs.version }}"
 
-    # - name: Create Git tag
-    #   run: |
-    #     echo "Tagging version ${{ steps.get_version.version }}"
-    #     git config user.name "GitHub Action"
-    #     git config user.email "action@github.com"
-    #     git tag ${{ steps.test.get_version.version }}
-    #     git push origin ${{ steps.test.get_version.version }}
+    - name: Create Git tag if not exists
+      shell: pwsh
+      run: |
+        $tag = "${{ steps.package_version.outputs.version }}"
+        git fetch --tags
+        if (-not (git tag -l $tag)) {
+          Write-Host "Tag $tag does not exist. Creating and pushing..."
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git tag $tag
+          git push origin $tag
+        } else {
+          Write-Host "Tag $tag already exists. Skipping tag creation."
+        }
 
-    # - name: Create GitHub Release
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     tag_name: ${{ steps.test.get_version.version }}
-    #     name: Release ${{ steps.test.get_version.version }}
-    #     draft: false
-    #     prerelease: false
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Zip publish_output
+      shell: pwsh
+      run: |
+        Compress-Archive -Path publish_output\* -DestinationPath LightlessSync.zip
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.package_version.outputs.version }}
+        name: Release ${{ steps.package_version.outputs.version }}
+        draft: false
+        prerelease: false
+        files: LightlessSync.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
