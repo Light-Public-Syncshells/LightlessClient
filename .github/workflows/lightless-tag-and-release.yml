@@ -1,0 +1,40 @@
+name: Tag and Release Lightless
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout lightless
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: get version from lightless proj
+      id: get_version
+      run: |
+        VERSION=$(xmllint --xpath "string(//Version)" LightlessSync/LightlessSync.csproj)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Create Git tag
+      run: |
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        git tag "v${VERSION}"
+        git push origin "v${VERSION}"
+      env:
+        VERSION: ${{ env.VERSION }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION }}
+        name: ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
