@@ -18,7 +18,7 @@ jobs:
       id: get_version
       uses: KageKirin/get-csproj-version@v0
       with:
-        file: /LightlessSync/LightlessSync.csproj
+        file: LightlessSync/LightlessSync.csproj
         
 
     - name: Create Git tag
