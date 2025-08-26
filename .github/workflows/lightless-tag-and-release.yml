@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout Lightless
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: true
 
     - name: Setup .NET 9 SDK
       uses: actions/setup-dotnet@v4
