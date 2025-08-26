@@ -26,9 +26,7 @@ jobs:
         git config user.name "GitHub Action"
         git config user.email "action@github.com"
         git tag ${{ steps.test.get_version.version }}
-        git push origin "${VERSION}"
-      env:
-        VERSION: ${{ env.VERSION }}
+        git push origin ${{ steps.test.get_version.version }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
