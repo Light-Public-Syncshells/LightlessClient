@@ -16,24 +16,25 @@ jobs:
 
     - name: get version from lightless proj
       id: get_version
-      run: |
-        VERSION=$(xmllint --xpath "string(//Version)" LightlessSync/LightlessSync.csproj)
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      uses: KageKirin/get-csproj-version@v0
+      with:
+        file: /Lightless/Lightless.csproj
+        
 
     - name: Create Git tag
       run: |
         git config user.name "GitHub Action"
         git config user.email "action@github.com"
-        git tag "v${VERSION}"
-        git push origin "v${VERSION}"
+        git tag ${{ steps.test.get_version.version }}
+        git push origin "${VERSION}"
       env:
         VERSION: ${{ env.VERSION }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ env.VERSION }}
-        name: ${{ env.VERSION }}
+        tag_name: ${{ steps.test.get_version.version }}
+        name: Release ${{ steps.test.get_version.version }}
         draft: false
         prerelease: false
       env:
