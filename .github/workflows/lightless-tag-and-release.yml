@@ -5,6 +5,7 @@ on:
     branches: [ master ]
 
 env:
+  PLUGIN_NAME: LightlessSync
   DOTNET_VERSION: 9.x
   SOLUTION_PATH: LightlessSync.sln
 
@@ -24,8 +25,10 @@ jobs:
       with:
         dotnet-version: 9.x
 
-    - name: Echo .NET Version
-      run: dotnet --version
+    - name: Download Dalamud
+      run: |
+        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+        Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
     - name: Install dependencies
       run: dotnet restore
