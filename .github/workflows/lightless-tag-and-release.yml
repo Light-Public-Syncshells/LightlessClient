@@ -81,4 +81,4 @@ jobs:
         prerelease: false
         files: output/LightlessClient.zip
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.LIGHTLESS_TOKEN }}
