@@ -29,15 +29,12 @@ jobs:
         Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
         Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
-    - name: Install dependencies
-      run: dotnet restore
+    - name: Lets Build Lightless!
+      run: | 
+          dotnet restore
+          dotnet build --configuration Release --no-restore
+          dotnet publish --configuration Release --no-build
 
-    - name: Build LightlessSync
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Publish LightlessSync
-      run: dotnet publish --configuration Release --no-build
-    
     - name: Get version
       id: package_version
       uses: KageKirin/get-csproj-version@v0
@@ -50,6 +47,13 @@ jobs:
 
     - name: Prepare Lightless Client
       run: |
+        $publishPath = "${{ env.PLUGIN_NAME }}/bin/x64/Release/publish" # Clean up this folder if it exists
+        if (Test-Path $publishPath) {
+          Remove-Item -Recurse -Force $publishPath
+          Write-Host "Removed $publishPath"
+        } else {
+          Write-Host "$publishPath does not exist, nothing to remove."
+        }
         mkdir output
         Compress-Archive -Path ${{ env.PLUGIN_NAME }}/bin/x64/Release/* -DestinationPath output/LightlessClient.zip
 
