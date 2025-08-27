@@ -7,7 +7,6 @@ on:
 env:
   PLUGIN_NAME: LightlessSync
   DOTNET_VERSION: 9.x
-  SOLUTION_PATH: LightlessSync.sln
 
 jobs:
   tag-and-release:
@@ -37,7 +36,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish LightlessSync
-      run: dotnet publish --configuration Release --no-build --output publish_output
+      run: dotnet publish --configuration Release --no-build
     
     - name: Get version
       id: package_version
@@ -48,6 +47,10 @@ jobs:
     - name: Display version
       run: | 
           echo "Version: ${{ steps.package_version.outputs.version }}"
+
+    - name: Prepare Lightless Client
+      run: |
+        Compress-Archive -Path ${{ env.PLUGIN_NAME }}/bin/x64/Release/* -DestinationPath output/LightlessClient.zip
 
     - name: Create Git tag if not exists
       shell: pwsh
@@ -64,11 +67,6 @@ jobs:
           Write-Host "Tag $tag already exists. Skipping tag creation."
         }
 
-    - name: Zip publish_output
-      shell: pwsh
-      run: |
-        Compress-Archive -Path publish_output\* -DestinationPath LightlessSync.zip
-
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
@@ -76,6 +74,6 @@ jobs:
         name: Release ${{ steps.package_version.outputs.version }}
         draft: false
         prerelease: false
-        files: LightlessSync.zip
+        files: LightlessClient.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
