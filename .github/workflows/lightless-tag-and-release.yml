@@ -75,6 +75,6 @@ jobs:
         name: Release ${{ steps.package_version.outputs.version }}
         draft: false
         prerelease: false
-        files: LightlessClient.zip
+        files: output/LightlessClient.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
