@@ -50,6 +50,7 @@ jobs:
 
     - name: Prepare Lightless Client
       run: |
+        mkdir output
         Compress-Archive -Path ${{ env.PLUGIN_NAME }}/bin/x64/Release/* -DestinationPath output/LightlessClient.zip
 
     - name: Create Git tag if not exists
