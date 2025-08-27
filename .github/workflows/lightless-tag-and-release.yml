@@ -49,7 +49,7 @@ jobs:
 
     - name: Prepare Lightless Client
       run: |
-        $publishPath = "${{ env.PLUGIN_NAME }}/bin/x64/Release/publish" # Clean up this folder if it exists
+        $publishPath = "${{ env.PLUGIN_NAME }}/bin/x64/Release/publish"
         if (Test-Path $publishPath) {
           Remove-Item -Recurse -Force $publishPath
           Write-Host "Removed $publishPath"
