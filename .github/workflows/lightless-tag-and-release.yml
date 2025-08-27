@@ -11,6 +11,8 @@ env:
 jobs:
   tag-and-release:
     runs-on: windows-2022
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout Lightless
@@ -80,5 +82,3 @@ jobs:
         draft: false
         prerelease: false
         files: output/LightlessClient.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.LIGHTLESS_TOKEN }}
