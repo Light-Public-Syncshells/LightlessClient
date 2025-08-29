@@ -115,9 +115,9 @@ jobs:
 
     - name: Commit and push to LightlessSync
       run: |
-          cd LightlessSync
+          cd LightlessSyncRepo/LightlessSync
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
           git commit -m "Update ${{ env.PLUGIN_NAME }} to ${{ steps.package_version.outputs.version }}"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/LightlessSync.git HEAD:main
+          git push https://x-access-token:${{ secrets.LIGHTLESS_TOKEN }}@github.com/${{ github.repository_owner }}/LightlessSync.git HEAD:main
