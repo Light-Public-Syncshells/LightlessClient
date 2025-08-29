@@ -107,7 +107,7 @@ jobs:
           foreach ($plugin in $repoJson) {
             if ($plugin.InternalName -eq $pluginJson.InternalName) {
               $plugin.DalamudApiLevel = $pluginJson.DalamudApiLevel
-              $plugin.AssemblyVersion = $pluginJson.AssemblyVersion
+              $plugin.AssemblyVersion = ${{ steps.package_version.outputs.version }}
             }
           }
           
