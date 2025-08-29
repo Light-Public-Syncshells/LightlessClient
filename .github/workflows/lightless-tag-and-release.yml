@@ -82,3 +82,40 @@ jobs:
         draft: false
         prerelease: false
         files: output/LightlessClient.zip
+
+    - name: Clone plugin hosting repo
+      run: git clone https://github.com/${{ github.repository_owner }}/LightlessSync.git
+      env:
+        GIT_TERMINAL_PROMPT: 0
+
+    - name: Update repo.json with version and timestamp
+      shell: pwsh
+      run: |
+          $pluginJsonPath = "${{ env.PLUGIN_NAME }}/bin/x64/Release/${{ env.PLUGIN_NAME }}.json"
+          $pluginJson = Get-Content $pluginJsonPath | ConvertFrom-Json
+          $repoJsonPath = "LightlessSync/plogonmaster.json"
+          $repoJsonRaw = Get-Content $repoJsonPath -Raw
+          $repoJson = $repoJsonRaw | ConvertFrom-Json
+          
+          if (-not ($repoJson -is [System.Collections.IEnumerable])) {
+            $repoJson = @($repoJson)
+          }
+          
+          foreach ($plugin in $repoJson) {
+            if ($plugin.InternalName -eq $pluginJson.InternalName) {
+              $plugin.DalamudApiLevel = $pluginJson.DalamudApiLevel
+              $plugin.AssemblyVersion = $pluginJson.AssemblyVersion
+              $plugin.LastUpdated = [int][double]::Parse((Get-Date -UFormat %s))
+            }
+          }
+          
+          $repoJson | ConvertTo-Json -Depth 100 | Set-Content $repoJsonPath
+
+    - name: Commit and push to LightlessSync
+      run: |
+          cd LightlessSync
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Update ${{ env.PLUGIN_NAME }} to ${{ steps.package_version.outputs.version }}"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/LightlessSync.git HEAD:main
