@@ -108,7 +108,6 @@ jobs:
             if ($plugin.InternalName -eq $pluginJson.InternalName) {
               $plugin.DalamudApiLevel = $pluginJson.DalamudApiLevel
               $plugin.AssemblyVersion = $pluginJson.AssemblyVersion
-              $plugin.LastUpdated = [int][double]::Parse((Get-Date -UFormat %s))
             }
           }
           
