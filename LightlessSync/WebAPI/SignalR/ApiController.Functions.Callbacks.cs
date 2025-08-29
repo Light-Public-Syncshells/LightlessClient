@@ -8,7 +8,6 @@ using LightlessSync.LightlessConfiguration.Models;
 using LightlessSync.Services.Mediator;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
-using static FFXIVClientStructs.FFXIV.Client.Game.UI.MapMarkerData.Delegates;
 
 namespace LightlessSync.WebAPI;
 

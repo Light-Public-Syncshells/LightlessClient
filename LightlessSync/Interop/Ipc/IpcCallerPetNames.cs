@@ -84,7 +84,7 @@ public sealed class IpcCallerPetNames : IIpcCaller
         {
             string localNameData = _getPlayerData.InvokeFunc();
             return string.IsNullOrEmpty(localNameData) ? string.Empty : localNameData;
-        } 
+        }
         catch (Exception e)
         {
             _logger.LogWarning(e, "Could not obtain Pet Nicknames data");

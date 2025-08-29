@@ -13,6 +13,8 @@ public class LightlessConfig : ILightlessConfiguration
     public bool EnableDtrEntry { get; set; } = false;
     public bool ShowUidInDtrTooltip { get; set; } = true;
     public bool PreferNoteInDtrTooltip { get; set; } = false;
+    public bool IsNameplateColorsEnabled { get; set; } = false;
+    public DtrEntry.Colors NameplateColors { get; set; } = new(Foreground: 0xE69138u, Glow: 0xFFBA47u);
     public bool UseColorsInDtr { get; set; } = true;
     public DtrEntry.Colors DtrColorsDefault { get; set; } = default;
     public DtrEntry.Colors DtrColorsNotConnected { get; set; } = new(Glow: 0x0428FFu);
@@ -60,4 +62,6 @@ public class LightlessConfig : ILightlessConfiguration
     public int Version { get; set; } = 1;
     public NotificationLocation WarningNotification { get; set; } = NotificationLocation.Both;
     public bool UseFocusTarget { get; set; } = false;
+    public bool overrideFriendColor { get; set; } = false;
+    public bool overridePartyColor { get; set; } = false;
 }

@@ -53,6 +53,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
     private readonly ServerConfigurationManager _serverConfigurationManager;
     private readonly UiSharedService _uiShared;
     private readonly IProgress<(int, int, FileCacheEntity)> _validationProgress;
+    private readonly NameplateService _nameplateService;
     private (int, int, FileCacheEntity) _currentProgress;
     private bool _deleteAccountPopupModalShown = false;
     private bool _deleteFilesPopupModalShown = false;
@@ -77,7 +78,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
         FileCacheManager fileCacheManager,
         FileCompactor fileCompactor, ApiController apiController,
         IpcManager ipcManager, CacheMonitor cacheMonitor,
-        DalamudUtilService dalamudUtilService, HttpClient httpClient) : base(logger, mediator, "Lightless Sync Settings", performanceCollector)
+        DalamudUtilService dalamudUtilService, HttpClient httpClient,
+        NameplateService nameplateService) : base(logger, mediator, "Lightless Sync Settings", performanceCollector)
     {
         _configService = configService;
         _pairManager = pairManager;
@@ -94,6 +96,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
         _httpClient = httpClient;
         _fileCompactor = fileCompactor;
         _uiShared = uiShared;
+        _nameplateService = nameplateService;
         AllowClickthrough = false;
         AllowPinning = false;
         _validationProgress = new Progress<(int, int, FileCacheEntity)>(v => _currentProgress = v);
@@ -111,6 +114,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
         Mediator.Subscribe<CharacterDataCreatedMessage>(this, (msg) => LastCreatedCharacterData = msg.CharacterData);
         Mediator.Subscribe<DownloadStartedMessage>(this, (msg) => _currentDownloads[msg.DownloadId] = msg.DownloadStatus);
         Mediator.Subscribe<DownloadFinishedMessage>(this, (msg) => _currentDownloads.TryRemove(msg.DownloadId, out _));
+        _nameplateService = nameplateService;
     }
 
     public CharacterData? LastCreatedCharacterData { private get; set; }
@@ -957,6 +961,41 @@ public class SettingsUi : WindowMediatorSubscriberBase
                     _configService.Current.DtrColorsPairsInRange = dtrColorsPairsInRange;
                     _configService.Save();
                 }
+            }
+        }
+
+        var nameColorsEnabled = _configService.Current.IsNameplateColorsEnabled;
+        var nameColors = _configService.Current.NameplateColors;
+        var isFriendOverride = _configService.Current.overrideFriendColor;
+        var isPartyOverride = _configService.Current.overridePartyColor;
+
+        if (ImGui.Checkbox("Override name color of visible paired players", ref nameColorsEnabled))
+        {
+            _configService.Current.IsNameplateColorsEnabled = nameColorsEnabled;
+            _configService.Save();
+            _nameplateService.RequestRedraw();
+        }
+
+        using (ImRaii.Disabled(!nameColorsEnabled))
+        {
+            using var indent = ImRaii.PushIndent();
+            if (InputDtrColors("Name color", ref nameColors))
+            {
+                _configService.Current.NameplateColors = nameColors;
+                _configService.Save();
+                _nameplateService.RequestRedraw();
+            }
+            if (ImGui.Checkbox("Override friend color", ref isFriendOverride))
+            {
+                _configService.Current.overrideFriendColor = isFriendOverride;
+                _configService.Save();
+                _nameplateService.RequestRedraw();
+            }
+            if (ImGui.Checkbox("Override party color", ref isPartyOverride))
+            {
+                _configService.Current.overridePartyColor = isPartyOverride;
+                _configService.Save();
+                _nameplateService.RequestRedraw();
             }
         }
 
