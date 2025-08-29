@@ -99,6 +99,8 @@ jobs:
           $repoJsonPath = "LightlessSyncRepo/LightlessSync/plogonmaster.json"
           $repoJsonRaw = Get-Content $repoJsonPath -Raw
           $repoJson = $repoJsonRaw | ConvertFrom-Json
+          $version = ${{ steps.package_version.outputs.version }}
+          $downloadUrl = "https://github.com/${{ github.repository_owner }}/LightlessClient/releases/download/$version/LightlessClient.zip"
           
           if (-not ($repoJson -is [System.Collections.IEnumerable])) {
             $repoJson = @($repoJson)
@@ -107,7 +109,10 @@ jobs:
           foreach ($plugin in $repoJson) {
             if ($plugin.InternalName -eq $pluginJson.InternalName) {
               $plugin.DalamudApiLevel = $pluginJson.DalamudApiLevel
-              $plugin.AssemblyVersion = ${{ steps.package_version.outputs.version }}
+              $plugin.AssemblyVersion = $version
+              $plugin.DownloadLinkInstall = $downloadUrl
+              $plugin.DownloadLinkTesting = $downloadUrl
+              $plugin.DownloadLinkUpdate = $downloadUrl
             }
           }
           
