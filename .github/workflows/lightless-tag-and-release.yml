@@ -91,7 +91,7 @@ jobs:
       env:
         GIT_TERMINAL_PROMPT: 0
 
-    - name: Update repo.json with version
+    - name: Update plogonmaster.json with version
       shell: pwsh
       env:
           VERSION: ${{ steps.package_version.outputs.version }}
