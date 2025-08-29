@@ -63,7 +63,7 @@ internal sealed partial class CharaDataHubUi
             ImGui.AlignTextToFramePadding();
             ImGui.TextUnformatted("GPose Lobby");
             ImGui.SameLine();
-            UiSharedService.ColorTextWrapped(_charaDataGposeTogetherManager.CurrentGPoseLobbyId, ImGuiColors.ParsedGreen);
+            UiSharedService.ColorTextWrapped(_charaDataGposeTogetherManager.CurrentGPoseLobbyId, UIColors.Get("LightlessBlue"));
             ImGui.SameLine();
             if (_uiSharedService.IconButton(FontAwesomeIcon.Clipboard))
             {
@@ -130,7 +130,7 @@ internal sealed partial class CharaDataHubUi
             ImGui.AlignTextToFramePadding();
             var note = _serverConfigurationManager.GetNoteForUid(user.UserData.UID);
             var userText = note == null ? user.UserData.AliasOrUID : $"{note} ({user.UserData.AliasOrUID})";
-            UiSharedService.ColorText(userText, ImGuiColors.ParsedGreen);
+            UiSharedService.ColorText(userText, UIColors.Get("LightlessBlue"));
 
             var buttonsize = _uiSharedService.GetIconButtonSize(FontAwesomeIcon.ArrowRight).X;
             var buttonsize2 = _uiSharedService.GetIconButtonSize(FontAwesomeIcon.Plus).X;
@@ -165,7 +165,7 @@ internal sealed partial class CharaDataHubUi
             UiSharedService.AttachToolTip(user.WorldDataDescriptor + UiSharedService.TooltipSeparator);
 
             ImGui.SameLine();
-            _uiSharedService.IconText(FontAwesomeIcon.Map, sameMapAndServer.SameMap ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed);
+            _uiSharedService.IconText(FontAwesomeIcon.Map, sameMapAndServer.SameMap ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed);
             if (ImGui.IsItemClicked(ImGuiMouseButton.Left) && user.WorldData != null)
             {
                 _dalamudUtilService.SetMarkerAndOpenMap(new(user.WorldData.Value.PositionX, user.WorldData.Value.PositionY, user.WorldData.Value.PositionZ), user.Map);
@@ -175,12 +175,12 @@ internal sealed partial class CharaDataHubUi
                 + "Note: For GPose synchronization to work properly, you must be on the same map.");
 
             ImGui.SameLine();
-            _uiSharedService.IconText(FontAwesomeIcon.Globe, sameMapAndServer.SameServer ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed);
+            _uiSharedService.IconText(FontAwesomeIcon.Globe, sameMapAndServer.SameServer ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed);
             UiSharedService.AttachToolTip((sameMapAndServer.SameMap ? "You are on the same server." : "You are not on the same server.") + UiSharedService.TooltipSeparator
                 + "Note: GPose synchronization is not dependent on the current server, but you will have to spawn a character for the other lobby users.");
 
             ImGui.SameLine();
-            _uiSharedService.IconText(FontAwesomeIcon.Running, sameMapAndServer.SameEverything ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed);
+            _uiSharedService.IconText(FontAwesomeIcon.Running, sameMapAndServer.SameEverything ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed);
             UiSharedService.AttachToolTip(sameMapAndServer.SameEverything ? "You are in the same instanced area." : "You are not the same instanced area." + UiSharedService.TooltipSeparator +
                 "Note: Users not in your instance, but on the same map, will be drawn as floating wisps." + Environment.NewLine
                 + "Note: GPose synchronization is not dependent on the current instance, but you will have to spawn a character for the other lobby users.");

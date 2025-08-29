@@ -853,7 +853,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
         _uiShared.DrawHelpText("If this option is selected all already existing notes for UIDs will be overwritten by the imported notes.");
         if (_notesSuccessfullyApplied.HasValue && _notesSuccessfullyApplied.Value)
         {
-            UiSharedService.ColorTextWrapped("User Notes successfully imported", ImGuiColors.HealerGreen);
+            UiSharedService.ColorTextWrapped("User Notes successfully imported", UIColors.Get("LightlessBlue"));
         }
         else if (_notesSuccessfullyApplied.HasValue && !_notesSuccessfullyApplied.Value)
         {
@@ -1474,10 +1474,10 @@ public class SettingsUi : WindowMediatorSubscriberBase
                             ImGuiHelpers.ScaledDummy(5);
                             UiSharedService.ColorText("A potential rename/world change from this character was detected:", ImGuiColors.DalamudYellow);
                             using (ImRaii.PushIndent(10f))
-                                UiSharedService.ColorText("Entry: " + authWithCid.CharacterName + " - " + _dalamudUtilService.WorldData.Value[(ushort)authWithCid.WorldId], ImGuiColors.ParsedGreen);
+                                UiSharedService.ColorText("Entry: " + authWithCid.CharacterName + " - " + _dalamudUtilService.WorldData.Value[(ushort)authWithCid.WorldId], UIColors.Get("LightlessBlue"));
                             UiSharedService.ColorText("Press the button below to adjust that entry to your current character:", ImGuiColors.DalamudYellow);
                             using (ImRaii.PushIndent(10f))
-                                UiSharedService.ColorText("Current: " + youName + " - " + _dalamudUtilService.WorldData.Value[(ushort)youWorld], ImGuiColors.ParsedGreen);
+                                UiSharedService.ColorText("Current: " + youName + " - " + _dalamudUtilService.WorldData.Value[(ushort)youWorld], UIColors.Get("LightlessBlue"));
                             ImGuiHelpers.ScaledDummy(5);
                             if (_uiShared.IconTextButton(FontAwesomeIcon.ArrowRight, "Update Entry to Current Character"))
                             {
@@ -1528,7 +1528,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
                         {
                             misManaged = true;
                         }
-                        Vector4 color = ImGuiColors.ParsedGreen;
+                        Vector4 color = UIColors.Get("LightlessBlue");
                         string text = thisIsYou ? "Your Current Character" : string.Empty;
                         if (misManaged)
                         {
@@ -1926,11 +1926,11 @@ public class SettingsUi : WindowMediatorSubscriberBase
         {
             ImGui.TextUnformatted("Service " + _serverConfigurationManager.CurrentServer!.ServerName + ":");
             ImGui.SameLine();
-            ImGui.TextColored(ImGuiColors.ParsedGreen, "Available");
+            ImGui.TextColored(UIColors.Get("LightlessBlue"), "Available");
             ImGui.SameLine();
             ImGui.TextUnformatted("(");
             ImGui.SameLine();
-            ImGui.TextColored(ImGuiColors.ParsedGreen, _apiController.OnlineUsers.ToString(CultureInfo.InvariantCulture));
+            ImGui.TextColored(UIColors.Get("LightlessBlue"), _apiController.OnlineUsers.ToString(CultureInfo.InvariantCulture));
             ImGui.SameLine();
             ImGui.TextUnformatted("Users Online");
             ImGui.SameLine();

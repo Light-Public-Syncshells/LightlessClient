@@ -241,7 +241,7 @@ internal sealed partial class CharaDataHubUi
             ImGui.SameLine(pos);
             if (!dataDto.HasMissingFiles)
             {
-                UiSharedService.ColorTextWrapped("All files to download this character data are present on the server", ImGuiColors.HealerGreen);
+                UiSharedService.ColorTextWrapped("All files to download this character data are present on the server", UIColors.Get("LightlessBlue"));
             }
             else
             {
@@ -769,7 +769,7 @@ internal sealed partial class CharaDataHubUi
         }
         else if (_charaDataManager.DataCreationTask != null && _charaDataManager.DataCreationTask.IsCompleted)
         {
-            var color = _charaDataManager.DataCreationTask.Result.Success ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed;
+            var color = _charaDataManager.DataCreationTask.Result.Success ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed;
             UiSharedService.ColorTextWrapped(_charaDataManager.DataCreationTask.Result.Output, color);
         }
 

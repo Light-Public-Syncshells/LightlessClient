@@ -276,7 +276,7 @@ public class CompactUi : WindowMediatorSubscriberBase
         {
             ImGui.SetCursorPosX((ImGui.GetWindowContentRegionMin().X + UiSharedService.GetWindowContentRegionWidth()) / 2 - (userSize.X + textSize.X) / 2 - ImGui.GetStyle().ItemSpacing.X / 2);
             if (!printShard) ImGui.AlignTextToFramePadding();
-            ImGui.TextColored(ImGuiColors.ParsedGreen, userCount);
+            ImGui.TextColored(UIColors.Get("LightlessPurple"), userCount);
             ImGui.SameLine();
             if (!printShard) ImGui.AlignTextToFramePadding();
             ImGui.TextUnformatted("Users Online");
@@ -589,7 +589,7 @@ public class CompactUi : WindowMediatorSubscriberBase
         {
             ServerState.Connecting => ImGuiColors.DalamudYellow,
             ServerState.Reconnecting => ImGuiColors.DalamudRed,
-            ServerState.Connected => ImGuiColors.ParsedGreen,
+            ServerState.Connected => UIColors.Get("LightlessPurple"),
             ServerState.Disconnected => ImGuiColors.DalamudYellow,
             ServerState.Disconnecting => ImGuiColors.DalamudYellow,
             ServerState.Unauthorized => ImGuiColors.DalamudRed,

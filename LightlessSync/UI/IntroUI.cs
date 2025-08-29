@@ -308,7 +308,7 @@ public partial class IntroUi : WindowMediatorSubscriberBase
                 }
                 else
                 {
-                    UiSharedService.ColorTextWrapped($"OAuth2 is connected. Linked to: Discord User {_serverConfigurationManager.GetDiscordUserFromToken(selectedServer)}", ImGuiColors.HealerGreen);
+                    UiSharedService.ColorTextWrapped($"OAuth2 is connected. Linked to: Discord User {_serverConfigurationManager.GetDiscordUserFromToken(selectedServer)}", UIColors.Get("LightlessBlue"));
                     UiSharedService.TextWrapped("Now press the update UIDs button to get a list of all of your UIDs on the server.");
                     _uiShared.DrawUpdateOAuthUIDsButton(selectedServer);
                     var playerName = _dalamudUtilService.GetPlayerName();

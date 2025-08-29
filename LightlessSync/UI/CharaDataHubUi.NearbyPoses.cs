@@ -112,7 +112,7 @@ internal partial class CharaDataHubUi
                 var noteText = pose.Key.MetaInfo.IsOwnData ? "YOU" : (userNote == null ? pose.Key.MetaInfo.Uploader.AliasOrUID : $"{userNote} ({pose.Key.MetaInfo.Uploader.AliasOrUID})");
                 ImGui.TextUnformatted("Pose by");
                 ImGui.SameLine();
-                UiSharedService.ColorText(noteText, ImGuiColors.ParsedGreen);
+                UiSharedService.ColorText(noteText, UIColors.Get("LightlessBlue"));
                 using (ImRaii.Group())
                 {
                     UiSharedService.ColorText("Character Data Description", ImGuiColors.DalamudGrey);
@@ -176,7 +176,7 @@ internal partial class CharaDataHubUi
             Vector2 coneBase2 = circleCenter + baseDir2 * circleRadius;
 
             // Draw the cone as a filled triangle
-            drawList.AddTriangleFilled(circleCenter, coneBase1, coneBase2, UiSharedService.Color(ImGuiColors.ParsedGreen));
+            drawList.AddTriangleFilled(circleCenter, coneBase1, coneBase2, UiSharedService.Color(UIColors.Get("LightlessBlue")));
             drawList.AddCircle(circleCenter, circleDiameter / 2, UiSharedService.Color(ImGuiColors.DalamudWhite), 360, 2);
             var distance = pose.Value.Distance.ToString("0.0") + "y";
             var textSize = ImGui.CalcTextSize(distance);

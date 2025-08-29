@@ -110,7 +110,7 @@ public class PopoutProfileUi : WindowMediatorSubscriberBase
             var rectMax = drawList.GetClipRectMax();
 
             using (_uiSharedService.UidFont.Push())
-                UiSharedService.ColorText(_pair.UserData.AliasOrUID, ImGuiColors.HealerGreen);
+                UiSharedService.ColorText(_pair.UserData.AliasOrUID, UIColors.Get("LightlessBlue"));
 
             ImGuiHelpers.ScaledDummy(spacing.Y, spacing.Y);
             var textPos = ImGui.GetCursorPosY();
@@ -123,7 +123,7 @@ public class PopoutProfileUi : WindowMediatorSubscriberBase
                 UiSharedService.ColorText(note, ImGuiColors.DalamudGrey);
             }
             string status = _pair.IsVisible ? "Visible" : (_pair.IsOnline ? "Online" : "Offline");
-            UiSharedService.ColorText(status, (_pair.IsVisible || _pair.IsOnline) ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed);
+            UiSharedService.ColorText(status, (_pair.IsVisible || _pair.IsOnline) ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed);
             if (_pair.IsVisible)
             {
                 ImGui.SameLine();
