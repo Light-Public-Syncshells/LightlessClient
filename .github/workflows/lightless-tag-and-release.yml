@@ -91,15 +91,17 @@ jobs:
       env:
         GIT_TERMINAL_PROMPT: 0
 
-    - name: Update repo.json with version and timestamp
+    - name: Update repo.json with version
       shell: pwsh
+      env:
+          VERSION: ${{ steps.package_version.outputs.version }}
       run: |
           $pluginJsonPath = "${{ env.PLUGIN_NAME }}/bin/x64/Release/${{ env.PLUGIN_NAME }}.json"
           $pluginJson = Get-Content $pluginJsonPath | ConvertFrom-Json
           $repoJsonPath = "LightlessSyncRepo/LightlessSync/plogonmaster.json"
           $repoJsonRaw = Get-Content $repoJsonPath -Raw
           $repoJson = $repoJsonRaw | ConvertFrom-Json
-          $version = ${{ steps.package_version.outputs.version }}
+          $version = $env:VERSION
           $downloadUrl = "https://github.com/${{ github.repository_owner }}/LightlessClient/releases/download/$version/LightlessClient.zip"
           
           if (-not ($repoJson -is [System.Collections.IEnumerable])) {
