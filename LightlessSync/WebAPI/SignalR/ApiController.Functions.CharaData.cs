@@ -1,6 +1,5 @@
 ﻿using LightlessSync.API.Data;
 using LightlessSync.API.Dto.CharaData;
-using LightlessSync.Services.CharaData.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 

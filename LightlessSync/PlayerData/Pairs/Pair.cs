@@ -48,6 +48,7 @@ public class Pair
     public long LastAppliedDataTris { get; set; } = -1;
     public long LastAppliedApproximateVRAMBytes { get; set; } = -1;
     public string Ident => _onlineUserIdentDto?.Ident ?? string.Empty;
+    public uint PlayerCharacterId => CachedPlayer?.PlayerCharacterId ?? uint.MaxValue;
 
     public UserData UserData => UserPair.User;
 

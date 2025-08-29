@@ -119,6 +119,7 @@ public sealed class PairHandler : DisposableMediatorSubscriberBase
                 Mediator.Publish(new EventMessage(new Event(PlayerName, Pair.UserData, nameof(PairHandler),
                     EventSeverity.Informational, text)));
                 Mediator.Publish(new RefreshUiMessage());
+                Mediator.Publish(new VisibilityChange());
             }
         }
     }

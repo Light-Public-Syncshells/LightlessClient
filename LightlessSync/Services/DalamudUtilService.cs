@@ -1,5 +1,4 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState.Conditions;
+﻿using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -10,13 +9,13 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using Lumina.Excel.Sheets;
 using LightlessSync.API.Dto.CharaData;
 using LightlessSync.Interop;
 using LightlessSync.LightlessConfiguration;
 using LightlessSync.PlayerData.Handlers;
 using LightlessSync.Services.Mediator;
 using LightlessSync.Utils;
+using Lumina.Excel.Sheets;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Numerics;
@@ -135,7 +134,7 @@ public class DalamudUtilService : IHostedService, IMediatorSubscriber
         _cid = RebuildCID();
     }
 
-    private Lazy<ulong> RebuildCID() =>  new(GetCID);
+    private Lazy<ulong> RebuildCID() => new(GetCID);
 
     public bool IsWine { get; init; }
 

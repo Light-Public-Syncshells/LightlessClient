@@ -1,8 +1,8 @@
 ﻿using Dalamud.Bindings.ImGui;
-using Dalamud.Interface.Colors;
-using Dalamud.Interface.Utility.Raii;
-using Dalamud.Interface.Utility;
 using Dalamud.Interface;
+using Dalamud.Interface.Colors;
+using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
 using LightlessSync.API.Dto.CharaData;
 using LightlessSync.Services.CharaData.Models;
 using System.Numerics;

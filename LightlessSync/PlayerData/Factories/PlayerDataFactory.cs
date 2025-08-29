@@ -8,7 +8,6 @@ using LightlessSync.PlayerData.Handlers;
 using LightlessSync.Services;
 using LightlessSync.Services.Mediator;
 using Microsoft.Extensions.Logging;
-using CharacterData = LightlessSync.PlayerData.Data.CharacterData;
 
 namespace LightlessSync.PlayerData.Factories;
 

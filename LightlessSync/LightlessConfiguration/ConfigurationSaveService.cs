@@ -1,5 +1,4 @@
 ﻿using LightlessSync.LightlessConfiguration.Configurations;
-using LightlessSync.LightlessConfiguration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Reflection;

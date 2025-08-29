@@ -1,6 +1,6 @@
 ﻿using Dalamud.Utility;
-using Lumina.Excel.Sheets;
 using LightlessSync.API.Dto.CharaData;
+using Lumina.Excel.Sheets;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
