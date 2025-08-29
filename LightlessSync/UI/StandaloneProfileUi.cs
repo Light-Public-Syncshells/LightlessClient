@@ -77,7 +77,7 @@ public class StandaloneProfileUi : WindowMediatorSubscriberBase
             var headerSize = ImGui.GetCursorPosY() - ImGui.GetStyle().WindowPadding.Y;
 
             using (_uiSharedService.UidFont.Push())
-                UiSharedService.ColorText(Pair.UserData.AliasOrUID, ImGuiColors.HealerGreen);
+                UiSharedService.ColorText(Pair.UserData.AliasOrUID, UIColors.Get("LightlessBlue"));
 
             ImGuiHelpers.ScaledDummy(new Vector2(spacing.Y, spacing.Y));
             var textPos = ImGui.GetCursorPosY() - headerSize;
@@ -118,7 +118,7 @@ public class StandaloneProfileUi : WindowMediatorSubscriberBase
                 UiSharedService.ColorText(note, ImGuiColors.DalamudGrey);
             }
             string status = Pair.IsVisible ? "Visible" : (Pair.IsOnline ? "Online" : "Offline");
-            UiSharedService.ColorText(status, (Pair.IsVisible || Pair.IsOnline) ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed);
+            UiSharedService.ColorText(status, (Pair.IsVisible || Pair.IsOnline) ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudRed);
             if (Pair.IsVisible)
             {
                 ImGui.SameLine();

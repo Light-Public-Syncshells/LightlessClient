@@ -202,7 +202,7 @@ public class DrawUserPair
         }
         else if (!_pair.IsOnline)
         {
-            using var _ = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed);
+            using var _ = ImRaii.PushColor(ImGuiCol.Text, UIColors.Get("DimRed"));
             _uiSharedService.IconText(_pair.IndividualPairStatus == API.Data.Enum.IndividualPairStatus.OneSided
                 ? FontAwesomeIcon.ArrowsLeftRight
                 : (_pair.IndividualPairStatus == API.Data.Enum.IndividualPairStatus.Bidirectional
@@ -211,7 +211,7 @@ public class DrawUserPair
         }
         else if (_pair.IsVisible)
         {
-            _uiSharedService.IconText(FontAwesomeIcon.Eye, ImGuiColors.ParsedGreen);
+            _uiSharedService.IconText(FontAwesomeIcon.Eye, UIColors.Get("LightlessBlue"));
             userPairText = _pair.UserData.AliasOrUID + " is visible: " + _pair.PlayerName + Environment.NewLine + "Click to target this player";
             if (ImGui.IsItemClicked())
             {
@@ -220,7 +220,7 @@ public class DrawUserPair
         }
         else
         {
-            using var _ = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
+            using var _ = ImRaii.PushColor(ImGuiCol.Text, UIColors.Get("PairBlue"));
             _uiSharedService.IconText(_pair.IndividualPairStatus == API.Data.Enum.IndividualPairStatus.Bidirectional
                 ? FontAwesomeIcon.User : FontAwesomeIcon.Users);
             userPairText = _pair.UserData.AliasOrUID + " is online";

@@ -305,7 +305,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
         }
     }
 
-    public static Vector4 GetBoolColor(bool input) => input ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed;
+    public static Vector4 GetBoolColor(bool input) => input ? UIColors.Get("LightlessBlue") : UIColors.Get("DimRed");
 
     public static string GetNotes(List<Pair> pairs)
     {
@@ -394,7 +394,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
     }
 
     public static Vector4 UploadColor((long, long) data) => data.Item1 == 0 ? ImGuiColors.DalamudGrey :
-        data.Item1 == data.Item2 ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudYellow;
+        data.Item1 == data.Item2 ? UIColors.Get("LightlessBlue") : ImGuiColors.DalamudYellow;
 
     public bool ApplyNotesFromClipboard(string notes, bool overwrite)
     {
@@ -436,7 +436,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
 
     public void BooleanToColoredIcon(bool value, bool inline = true)
     {
-        using var colorgreen = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.HealerGreen, value);
+        using var colorgreen = ImRaii.PushColor(ImGuiCol.Text, UIColors.Get("LightlessBlue"), value);
         using var colorred = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed, !value);
 
         if (inline) ImGui.SameLine();
@@ -645,7 +645,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
                 {
                     if (_discordOAuthCheck.Result != null)
                     {
-                        ColorTextWrapped("Server is compatible with Discord OAuth2", ImGuiColors.HealerGreen);
+                        ColorTextWrapped("Server is compatible with Discord OAuth2", UIColors.Get("LightlessBlue"));
                     }
                     else
                     {
@@ -678,7 +678,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
                         selectedServer.OAuthToken = _discordOAuthGetCode.Result;
                         _discordOAuthGetCode = null;
                         _serverConfigurationManager.Save();
-                        ColorTextWrapped("Success", ImGuiColors.HealerGreen);
+                        ColorTextWrapped("Success", UIColors.Get("LightlessBlue"));
                     }
                     else
                     {
@@ -708,7 +708,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
 
             if (tokenExpiry > DateTime.UtcNow)
             {
-                ColorTextWrapped($"OAuth2 is enabled, linked to: Discord User {_serverConfigurationManager.GetDiscordUserFromToken(selectedServer)}", ImGuiColors.HealerGreen);
+                ColorTextWrapped($"OAuth2 is enabled, linked to: Discord User {_serverConfigurationManager.GetDiscordUserFromToken(selectedServer)}", UIColors.Get("LightlessBlue"));
                 TextWrapped($"The OAuth2 token will expire on {tokenExpiry:yyyy-MM-dd} and automatically renew itself during login on or after {(tokenExpiry - TimeSpan.FromDays(7)):yyyy-MM-dd}.");
                 using (ImRaii.Disabled(!CtrlPressed()))
                 {
@@ -740,7 +740,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
                         if (foundUids > 0)
                         {
                             ColorTextWrapped($"Found {foundUids} associated UIDs on the server, Primary UID: {primaryUid.Key} (Vanity UID: {vanity})",
-                                ImGuiColors.HealerGreen);
+                                UIColors.Get("LightlessBlue"));
                         }
                         else
                         {

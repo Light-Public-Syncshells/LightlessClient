@@ -383,7 +383,7 @@ internal sealed partial class CharaDataHubUi : WindowMediatorSubscriberBase
                 UiSharedService.AttachToolTip($"Target the GPose Character {CharaName(actor.Name.TextValue)}");
                 ImGui.AlignTextToFramePadding();
                 var pos = ImGui.GetCursorPosX();
-                using (ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.HealerGreen, actor.Address == (_dalamudUtilService.GetGposeTargetGameObjectAsync().GetAwaiter().GetResult()?.Address ?? nint.Zero)))
+                using (ImRaii.PushColor(ImGuiCol.Text, UIColors.Get("LightlessBlue"), actor.Address == (_dalamudUtilService.GetGposeTargetGameObjectAsync().GetAwaiter().GetResult()?.Address ?? nint.Zero)))
                 {
                     ImGui.TextUnformatted(CharaName(actor.Name.TextValue));
                 }
