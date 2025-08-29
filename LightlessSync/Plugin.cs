@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects;
+﻿using Dalamud.Game;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -12,6 +13,7 @@ using LightlessSync.PlayerData.Factories;
 using LightlessSync.PlayerData.Pairs;
 using LightlessSync.PlayerData.Services;
 using LightlessSync.Services;
+using LightlessSync.Services.CharaData;
 using LightlessSync.Services.Events;
 using LightlessSync.Services.Mediator;
 using LightlessSync.Services.ServerConfiguration;
@@ -28,8 +30,6 @@ using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
 using System.Net.Http.Headers;
 using System.Reflection;
-using LightlessSync.Services.CharaData;
-using Dalamud.Game;
 
 namespace LightlessSync;
 
@@ -41,7 +41,7 @@ public sealed class Plugin : IDalamudPlugin
         IFramework framework, IObjectTable objectTable, IClientState clientState, ICondition condition, IChatGui chatGui,
         IGameGui gameGui, IDtrBar dtrBar, IPluginLog pluginLog, ITargetManager targetManager, INotificationManager notificationManager,
         ITextureProvider textureProvider, IContextMenu contextMenu, IGameInteropProvider gameInteropProvider, IGameConfig gameConfig,
-        ISigScanner sigScanner)
+        ISigScanner sigScanner, INamePlateGui namePlateGui)
     {
         if (!Directory.Exists(pluginInterface.ConfigDirectory.FullName))
             Directory.CreateDirectory(pluginInterface.ConfigDirectory.FullName);
@@ -228,6 +228,8 @@ public sealed class Plugin : IDalamudPlugin
                 s.GetRequiredService<CacheMonitor>(), s.GetRequiredService<FileDialogManager>(), s.GetRequiredService<LightlessConfigService>(), s.GetRequiredService<DalamudUtilService>(),
                 pluginInterface, textureProvider, s.GetRequiredService<Dalamud.Localization>(), s.GetRequiredService<ServerConfigurationManager>(), s.GetRequiredService<TokenProvider>(),
                 s.GetRequiredService<LightlessMediator>()));
+            collection.AddScoped((s) => new NameplateService(s.GetRequiredService<ILogger<NameplateService>>(), s.GetRequiredService<LightlessConfigService>(), namePlateGui, clientState,
+                s.GetRequiredService<PairManager>(), s.GetRequiredService<LightlessMediator>()));
 
             collection.AddHostedService(p => p.GetRequiredService<ConfigurationSaveService>());
             collection.AddHostedService(p => p.GetRequiredService<LightlessMediator>());

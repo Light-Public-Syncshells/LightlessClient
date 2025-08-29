@@ -151,6 +151,7 @@ public class LightlessPlugin : MediatorSubscriberBase, IHostedService
             _runtimeServiceScope.ServiceProvider.GetRequiredService<TransientResourceManager>();
             _runtimeServiceScope.ServiceProvider.GetRequiredService<VisibleUserDataDistributor>();
             _runtimeServiceScope.ServiceProvider.GetRequiredService<NotificationService>();
+            _runtimeServiceScope.ServiceProvider.GetRequiredService<NameplateService>();
 
 #if !DEBUG
             if (_lightlessConfigService.Current.LogLevel != LogLevel.Information)

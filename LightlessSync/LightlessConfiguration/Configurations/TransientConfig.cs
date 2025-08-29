@@ -1,5 +1,4 @@
 ﻿using LightlessSync.API.Data.Enum;
-using LightlessSync.LightlessConfiguration.Configurations;
 
 namespace LightlessSync.LightlessConfiguration.Configurations;
 
