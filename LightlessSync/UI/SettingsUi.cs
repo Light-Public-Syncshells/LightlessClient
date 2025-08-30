@@ -214,7 +214,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
     private void DrawCurrentTransfers()
     {
         _lastTab = "Transfers";
-        _uiShared.BigText("Transfer Settings");
+        _uiShared.UnderlinedBigText("Transfer Settings", UIColors.Get("LightlessBlue"));
+        ImGuiHelpers.ScaledDummy(5);
 
         int maxParallelDownloads = _configService.Current.ParallelDownloads;
         bool useAlternativeUpload = _configService.Current.UseAlternativeFileUpload;
@@ -263,7 +264,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
         _uiShared.DrawHelpText("This will attempt to upload files in one go instead of a stream. Typically not necessary to enable. Use if you have upload issues.");
 
         ImGui.Separator();
-        _uiShared.BigText("Transfer UI");
+        _uiShared.UnderlinedBigText("Transfer UI", UIColors.Get("LightlessBlue"));
+        ImGuiHelpers.ScaledDummy(5);
 
         bool showTransferWindow = _configService.Current.ShowTransferWindow;
         if (ImGui.Checkbox("Show separate transfer window", ref showTransferWindow))
@@ -400,7 +402,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
         }
 
         ImGui.Separator();
-        _uiShared.BigText("Current Transfers");
+        _uiShared.UnderlinedBigText("Current Transfers", UIColors.Get("LightlessBlue"));
+        ImGuiHelpers.ScaledDummy(5);
 
         if (ImGui.BeginTabBar("TransfersTabBar"))
         {
@@ -561,7 +564,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
     {
         _lastTab = "Debug";
 
-        _uiShared.BigText("Debug");
+        _uiShared.UnderlinedBigText("Debug", UIColors.Get("LightlessYellow"));
+        ImGuiHelpers.ScaledDummy(10);
 #if DEBUG
         if (LastCreatedCharacterData != null && ImGui.TreeNode("Last created character data"))
         {
@@ -621,13 +625,15 @@ public class SettingsUi : WindowMediatorSubscriberBase
         }
         _uiShared.DrawHelpText("Having modified game files will still mark your logs with UNSUPPORTED and you will not receive support, message shown or not." + UiSharedService.TooltipSeparator
             + "Keeping LOD enabled can lead to more crashes. Use at your own risk.");
+
+        _uiShared.ColoredSeparator(UIColors.Get("LightlessYellow"), 2f);
     }
 
     private void DrawFileStorageSettings()
     {
         _lastTab = "FileCache";
 
-        _uiShared.BigText("Export MCDF");
+        _uiShared.UnderlinedBigText("Export MCDF", UIColors.Get("LightlessBlue"));
 
         ImGuiHelpers.ScaledDummy(10);
 
@@ -646,7 +652,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
         ImGuiHelpers.ScaledDummy(5);
         ImGui.Separator();
 
-        _uiShared.BigText("Storage");
+        _uiShared.UnderlinedBigText("Storage", UIColors.Get("LightlessBlue"));
+        ImGuiHelpers.ScaledDummy(5);
 
         UiSharedService.TextWrapped("Lightless stores downloaded files from paired people permanently. This is to improve loading performance and requiring less downloads. " +
             "The storage governs itself by clearing data beyond the set storage size. Please set the storage size accordingly. It is not necessary to manually clear the storage.");
@@ -759,74 +766,87 @@ public class SettingsUi : WindowMediatorSubscriberBase
         ImGuiHelpers.ScaledDummy(new Vector2(10, 10));
 
         ImGui.Separator();
-        UiSharedService.TextWrapped("File Storage validation can make sure that all files in your local Lightless Storage are valid. " +
+
+        if (_uiShared.MediumTreeNode("Storage Validation", UIColors.Get("LightlessYellow")))
+        {
+            UiSharedService.TextWrapped("File Storage validation can make sure that all files in your local Lightless Storage are valid. " +
             "Run the validation before you clear the Storage for no reason. " + Environment.NewLine +
             "This operation, depending on how many files you have in your storage, can take a while and will be CPU and drive intensive.");
-        using (ImRaii.Disabled(_validationTask != null && !_validationTask.IsCompleted))
-        {
-            if (_uiShared.IconTextButton(FontAwesomeIcon.Check, "Start File Storage Validation"))
+            using (ImRaii.Disabled(_validationTask != null && !_validationTask.IsCompleted))
             {
-                _validationCts?.Cancel();
-                _validationCts?.Dispose();
-                _validationCts = new();
-                var token = _validationCts.Token;
-                _validationTask = Task.Run(() => _fileCacheManager.ValidateLocalIntegrity(_validationProgress, token));
-            }
-        }
-        if (_validationTask != null && !_validationTask.IsCompleted)
-        {
-            ImGui.SameLine();
-            if (_uiShared.IconTextButton(FontAwesomeIcon.Times, "Cancel"))
-            {
-                _validationCts?.Cancel();
-            }
-        }
-
-        if (_validationTask != null)
-        {
-            using (ImRaii.PushIndent(20f))
-            {
-                if (_validationTask.IsCompleted)
+                if (_uiShared.IconTextButton(FontAwesomeIcon.Check, "Start File Storage Validation"))
                 {
-                    UiSharedService.TextWrapped($"The storage validation has completed and removed {_validationTask.Result.Count} invalid files from storage.");
-                }
-                else
-                {
-
-                    UiSharedService.TextWrapped($"Storage validation is running: {_currentProgress.Item1}/{_currentProgress.Item2}");
-                    UiSharedService.TextWrapped($"Current item: {_currentProgress.Item3.ResolvedFilepath}");
+                    _validationCts?.Cancel();
+                    _validationCts?.Dispose();
+                    _validationCts = new();
+                    var token = _validationCts.Token;
+                    _validationTask = Task.Run(() => _fileCacheManager.ValidateLocalIntegrity(_validationProgress, token));
                 }
             }
+            if (_validationTask != null && !_validationTask.IsCompleted)
+            {
+                ImGui.SameLine();
+                if (_uiShared.IconTextButton(FontAwesomeIcon.Times, "Cancel"))
+                {
+                    _validationCts?.Cancel();
+                }
+            }
+
+            if (_validationTask != null)
+            {
+                using (ImRaii.PushIndent(20f))
+                {
+                    if (_validationTask.IsCompleted)
+                    {
+                        UiSharedService.TextWrapped($"The storage validation has completed and removed {_validationTask.Result.Count} invalid files from storage.");
+                    }
+                    else
+                    {
+
+                        UiSharedService.TextWrapped($"Storage validation is running: {_currentProgress.Item1}/{_currentProgress.Item2}");
+                        UiSharedService.TextWrapped($"Current item: {_currentProgress.Item3.ResolvedFilepath}");
+                    }
+                }
+            }
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessYellow"), 1.5f);
+            ImGui.TreePop();
         }
+
         ImGui.Separator();
 
-        ImGuiHelpers.ScaledDummy(new Vector2(10, 10));
-        ImGui.TextUnformatted("To clear the local storage accept the following disclaimer");
-        ImGui.Indent();
-        ImGui.Checkbox("##readClearCache", ref _readClearCache);
-        ImGui.SameLine();
-        UiSharedService.TextWrapped("I understand that: " + Environment.NewLine + "- By clearing the local storage I put the file servers of my connected service under extra strain by having to redownload all data."
-            + Environment.NewLine + "- This is not a step to try to fix sync issues."
-            + Environment.NewLine + "- This can make the situation of not getting other players data worse in situations of heavy file server load.");
-        if (!_readClearCache)
-            ImGui.BeginDisabled();
-        if (_uiShared.IconTextButton(FontAwesomeIcon.Trash, "Clear local storage") && UiSharedService.CtrlPressed() && _readClearCache)
+        if (_uiShared.MediumTreeNode("Validation", UIColors.Get("DimRed")))
         {
-            _ = Task.Run(() =>
+            ImGui.TextUnformatted("To clear the local storage accept the following disclaimer");
+            ImGui.Indent();
+            ImGui.Checkbox("##readClearCache", ref _readClearCache);
+            ImGui.SameLine();
+            UiSharedService.TextWrapped("I understand that: " + Environment.NewLine + "- By clearing the local storage I put the file servers of my connected service under extra strain by having to redownload all data."
+                + Environment.NewLine + "- This is not a step to try to fix sync issues."
+                + Environment.NewLine + "- This can make the situation of not getting other players data worse in situations of heavy file server load.");
+            if (!_readClearCache)
+                ImGui.BeginDisabled();
+            if (_uiShared.IconTextButton(FontAwesomeIcon.Trash, "Clear local storage") && UiSharedService.CtrlPressed() && _readClearCache)
             {
-                foreach (var file in Directory.GetFiles(_configService.Current.CacheFolder))
+                _ = Task.Run(() =>
                 {
-                    File.Delete(file);
-                }
-            });
+                    foreach (var file in Directory.GetFiles(_configService.Current.CacheFolder))
+                    {
+                        File.Delete(file);
+                    }
+                });
+            }
+            UiSharedService.AttachToolTip("You normally do not need to do this. THIS IS NOT SOMETHING YOU SHOULD BE DOING TO TRY TO FIX SYNC ISSUES." + Environment.NewLine
+                + "This will solely remove all downloaded data from all players and will require you to re-download everything again." + Environment.NewLine
+                + "Lightless storage is self-clearing and will not surpass the limit you have set it to." + Environment.NewLine
+                + "If you still think you need to do this hold CTRL while pressing the button.");
+            if (!_readClearCache)
+                ImGui.EndDisabled();
+            ImGui.Unindent();
+
+            _uiShared.ColoredSeparator(UIColors.Get("DimRed"), 1.5f);
+            ImGui.TreePop();
         }
-        UiSharedService.AttachToolTip("You normally do not need to do this. THIS IS NOT SOMETHING YOU SHOULD BE DOING TO TRY TO FIX SYNC ISSUES." + Environment.NewLine
-            + "This will solely remove all downloaded data from all players and will require you to re-download everything again." + Environment.NewLine
-            + "Lightless storage is self-clearing and will not surpass the limit you have set it to." + Environment.NewLine
-            + "If you still think you need to do this hold CTRL while pressing the button.");
-        if (!_readClearCache)
-            ImGui.EndDisabled();
-        ImGui.Unindent();
     }
 
     private void DrawGeneral()
@@ -840,49 +860,67 @@ public class SettingsUi : WindowMediatorSubscriberBase
         //UiSharedService.FontText("Experimental", _uiShared.UidFont);
         //ImGui.Separator();
 
+        _uiShared.UnderlinedBigText("General Settings", UIColors.Get("LightlessBlue"));
+        ImGui.Dummy(new Vector2(10));
         _uiShared.BigText("Notes");
-        if (_uiShared.IconTextButton(FontAwesomeIcon.StickyNote, "Export all your user notes to clipboard"))
-        {
-            ImGui.SetClipboardText(UiSharedService.GetNotes(_pairManager.DirectPairs.UnionBy(_pairManager.GroupPairs.SelectMany(p => p.Value), p => p.UserData, UserDataComparer.Instance).ToList()));
-        }
-        if (_uiShared.IconTextButton(FontAwesomeIcon.FileImport, "Import notes from clipboard"))
-        {
-            _notesSuccessfullyApplied = null;
-            var notes = ImGui.GetClipboardText();
-            _notesSuccessfullyApplied = _uiShared.ApplyNotesFromClipboard(notes, _overwriteExistingLabels);
-        }
 
-        ImGui.SameLine();
-        ImGui.Checkbox("Overwrite existing notes", ref _overwriteExistingLabels);
-        _uiShared.DrawHelpText("If this option is selected all already existing notes for UIDs will be overwritten by the imported notes.");
-        if (_notesSuccessfullyApplied.HasValue && _notesSuccessfullyApplied.Value)
+        if (_uiShared.MediumTreeNode("Import & Export", UIColors.Get("LightlessPurple")))
         {
-            UiSharedService.ColorTextWrapped("User Notes successfully imported", UIColors.Get("LightlessBlue"));
-        }
-        else if (_notesSuccessfullyApplied.HasValue && !_notesSuccessfullyApplied.Value)
-        {
-            UiSharedService.ColorTextWrapped("Attempt to import notes from clipboard failed. Check formatting and try again", ImGuiColors.DalamudRed);
-        }
+            if (_uiShared.IconTextButton(FontAwesomeIcon.StickyNote, "Export all your user notes to clipboard"))
+            {
+                ImGui.SetClipboardText(UiSharedService.GetNotes(_pairManager.DirectPairs.UnionBy(_pairManager.GroupPairs.SelectMany(p => p.Value), p => p.UserData, UserDataComparer.Instance).ToList()));
+            }
+            if (_uiShared.IconTextButton(FontAwesomeIcon.FileImport, "Import notes from clipboard"))
+            {
+                _notesSuccessfullyApplied = null;
+                var notes = ImGui.GetClipboardText();
+                _notesSuccessfullyApplied = _uiShared.ApplyNotesFromClipboard(notes, _overwriteExistingLabels);
+            }
 
-        var openPopupOnAddition = _configService.Current.OpenPopupOnAdd;
+            ImGui.SameLine();
+            ImGui.Checkbox("Overwrite existing notes", ref _overwriteExistingLabels);
+            _uiShared.DrawHelpText("If this option is selected all already existing notes for UIDs will be overwritten by the imported notes.");
+            if (_notesSuccessfullyApplied.HasValue && _notesSuccessfullyApplied.Value)
+            {
+                UiSharedService.ColorTextWrapped("User Notes successfully imported", UIColors.Get("LightlessBlue"));
+            }
+            else if (_notesSuccessfullyApplied.HasValue && !_notesSuccessfullyApplied.Value)
+            {
+                UiSharedService.ColorTextWrapped("Attempt to import notes from clipboard failed. Check formatting and try again", ImGuiColors.DalamudRed);
+            }
 
-        if (ImGui.Checkbox("Open Notes Popup on user addition", ref openPopupOnAddition))
-        {
-            _configService.Current.OpenPopupOnAdd = openPopupOnAddition;
-            _configService.Save();
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        _uiShared.DrawHelpText("This will open a popup that allows you to set the notes for a user after successfully adding them to your individual pairs.");
-
-        var autoPopulateNotes = _configService.Current.AutoPopulateEmptyNotesFromCharaName;
-        if (ImGui.Checkbox("Automatically populate notes using player names", ref autoPopulateNotes))
-        {
-            _configService.Current.AutoPopulateEmptyNotesFromCharaName = autoPopulateNotes;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("This will automatically populate user notes using the first encountered player name if the note was not set prior");
 
         ImGui.Separator();
+        var openPopupOnAddition = _configService.Current.OpenPopupOnAdd;
+
+        if (_uiShared.MediumTreeNode("Popup & Auto Fill", UIColors.Get("LightlessPurple")))
+        {
+            if (ImGui.Checkbox("Open Notes Popup on user addition", ref openPopupOnAddition))
+            {
+                _configService.Current.OpenPopupOnAdd = openPopupOnAddition;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("This will open a popup that allows you to set the notes for a user after successfully adding them to your individual pairs.");
+
+            var autoPopulateNotes = _configService.Current.AutoPopulateEmptyNotesFromCharaName;
+            if (ImGui.Checkbox("Automatically populate notes using player names", ref autoPopulateNotes))
+            {
+                _configService.Current.AutoPopulateEmptyNotesFromCharaName = autoPopulateNotes;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("This will automatically populate user notes using the first encountered player name if the note was not set prior");
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
+        }
+
+        ImGui.Separator();
+        ImGui.Dummy(new Vector2(10));
         _uiShared.BigText("UI");
+
         var showNameInsteadOfNotes = _configService.Current.ShowCharacterNameInsteadOfNotesForVisible;
         var showVisibleSeparate = _configService.Current.ShowVisibleUsersSeparately;
         var showOfflineSeparate = _configService.Current.ShowOfflineUsersSeparately;
@@ -904,380 +942,437 @@ public class SettingsUi : WindowMediatorSubscriberBase
         var groupInVisible = _configService.Current.ShowSyncshellUsersInVisible;
         var syncshellOfflineSeparate = _configService.Current.ShowSyncshellOfflineUsersSeparately;
 
-        if (ImGui.Checkbox("Enable Game Right Click Menu Entries", ref enableRightClickMenu))
-        {
-            _configService.Current.EnableRightClickMenus = enableRightClickMenu;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("This will add Lightless related right click menu entries in the game UI on paired players.");
 
-        if (ImGui.Checkbox("Display status and visible pair count in Server Info Bar", ref enableDtrEntry))
+        if (_uiShared.MediumTreeNode("Behavior", UIColors.Get("LightlessPurple")))
         {
-            _configService.Current.EnableDtrEntry = enableDtrEntry;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("This will add Lightless connection status and visible pair count in the Server Info Bar.\nYou can further configure this through your Dalamud Settings.");
-
-        using (ImRaii.Disabled(!enableDtrEntry))
-        {
-            using var indent = ImRaii.PushIndent();
-            if (ImGui.Checkbox("Show visible character's UID in tooltip", ref showUidInDtrTooltip))
+            if (ImGui.Checkbox("Enable Game Right Click Menu Entries", ref enableRightClickMenu))
             {
-                _configService.Current.ShowUidInDtrTooltip = showUidInDtrTooltip;
+                _configService.Current.EnableRightClickMenus = enableRightClickMenu;
                 _configService.Save();
             }
+            _uiShared.DrawHelpText("This will add Lightless related right click menu entries in the game UI on paired players.");
 
-            if (ImGui.Checkbox("Prefer notes over player names in tooltip", ref preferNoteInDtrTooltip))
+            if (ImGui.Checkbox("Display status and visible pair count in Server Info Bar", ref enableDtrEntry))
             {
-                _configService.Current.PreferNoteInDtrTooltip = preferNoteInDtrTooltip;
+                _configService.Current.EnableDtrEntry = enableDtrEntry;
                 _configService.Save();
             }
+            _uiShared.DrawHelpText("This will add Lightless connection status and visible pair count in the Server Info Bar.\nYou can further configure this through your Dalamud Settings.");
 
-            if (ImGui.Checkbox("Color-code the Server Info Bar entry according to status", ref useColorsInDtr))
+            using (ImRaii.Disabled(!enableDtrEntry))
             {
-                _configService.Current.UseColorsInDtr = useColorsInDtr;
-                _configService.Save();
-            }
-
-            using (ImRaii.Disabled(!useColorsInDtr))
-            {
-                using var indent2 = ImRaii.PushIndent();
-                if (InputDtrColors("Default", ref dtrColorsDefault))
+                using var indent = ImRaii.PushIndent();
+                if (ImGui.Checkbox("Show visible character's UID in tooltip", ref showUidInDtrTooltip))
                 {
-                    _configService.Current.DtrColorsDefault = dtrColorsDefault;
+                    _configService.Current.ShowUidInDtrTooltip = showUidInDtrTooltip;
                     _configService.Save();
                 }
 
-                ImGui.SameLine();
-                if (InputDtrColors("Not Connected", ref dtrColorsNotConnected))
+                if (ImGui.Checkbox("Prefer notes over player names in tooltip", ref preferNoteInDtrTooltip))
                 {
-                    _configService.Current.DtrColorsNotConnected = dtrColorsNotConnected;
+                    _configService.Current.PreferNoteInDtrTooltip = preferNoteInDtrTooltip;
                     _configService.Save();
                 }
 
-                ImGui.SameLine();
-                if (InputDtrColors("Pairs in Range", ref dtrColorsPairsInRange))
+                if (ImGui.Checkbox("Color-code the Server Info Bar entry according to status", ref useColorsInDtr))
                 {
-                    _configService.Current.DtrColorsPairsInRange = dtrColorsPairsInRange;
+                    _configService.Current.UseColorsInDtr = useColorsInDtr;
                     _configService.Save();
                 }
+
+                using (ImRaii.Disabled(!useColorsInDtr))
+                {
+                    using var indent2 = ImRaii.PushIndent();
+                    if (InputDtrColors("Default", ref dtrColorsDefault))
+                    {
+                        _configService.Current.DtrColorsDefault = dtrColorsDefault;
+                        _configService.Save();
+                    }
+
+                    ImGui.SameLine();
+                    if (InputDtrColors("Not Connected", ref dtrColorsNotConnected))
+                    {
+                        _configService.Current.DtrColorsNotConnected = dtrColorsNotConnected;
+                        _configService.Save();
+                    }
+
+                    ImGui.SameLine();
+                    if (InputDtrColors("Pairs in Range", ref dtrColorsPairsInRange))
+                    {
+                        _configService.Current.DtrColorsPairsInRange = dtrColorsPairsInRange;
+                        _configService.Save();
+                    }
+                }
             }
-        }
 
-        var nameColorsEnabled = _configService.Current.IsNameplateColorsEnabled;
-        var nameColors = _configService.Current.NameplateColors;
-        var isFriendOverride = _configService.Current.overrideFriendColor;
-        var isPartyOverride = _configService.Current.overridePartyColor;
+            var nameColorsEnabled = _configService.Current.IsNameplateColorsEnabled;
+            var nameColors = _configService.Current.NameplateColors;
+            var isFriendOverride = _configService.Current.overrideFriendColor;
+            var isPartyOverride = _configService.Current.overridePartyColor;
 
-        if (ImGui.Checkbox("Override name color of visible paired players", ref nameColorsEnabled))
-        {
-            _configService.Current.IsNameplateColorsEnabled = nameColorsEnabled;
-            _configService.Save();
-            _nameplateService.RequestRedraw();
-        }
-
-        using (ImRaii.Disabled(!nameColorsEnabled))
-        {
-            using var indent = ImRaii.PushIndent();
-            if (InputDtrColors("Name color", ref nameColors))
+            if (ImGui.Checkbox("Override name color of visible paired players", ref nameColorsEnabled))
             {
-                _configService.Current.NameplateColors = nameColors;
+                _configService.Current.IsNameplateColorsEnabled = nameColorsEnabled;
                 _configService.Save();
                 _nameplateService.RequestRedraw();
             }
-            if (ImGui.Checkbox("Override friend color", ref isFriendOverride))
+
+            using (ImRaii.Disabled(!nameColorsEnabled))
             {
-                _configService.Current.overrideFriendColor = isFriendOverride;
-                _configService.Save();
-                _nameplateService.RequestRedraw();
+                using var indent = ImRaii.PushIndent();
+                if (InputDtrColors("Name color", ref nameColors))
+                {
+                    _configService.Current.NameplateColors = nameColors;
+                    _configService.Save();
+                    _nameplateService.RequestRedraw();
+                }
+                if (ImGui.Checkbox("Override friend color", ref isFriendOverride))
+                {
+                    _configService.Current.overrideFriendColor = isFriendOverride;
+                    _configService.Save();
+                    _nameplateService.RequestRedraw();
+                }
+                if (ImGui.Checkbox("Override party color", ref isPartyOverride))
+                {
+                    _configService.Current.overridePartyColor = isPartyOverride;
+                    _configService.Save();
+                    _nameplateService.RequestRedraw();
+                }
             }
-            if (ImGui.Checkbox("Override party color", ref isPartyOverride))
-            {
-                _configService.Current.overridePartyColor = isPartyOverride;
-                _configService.Save();
-                _nameplateService.RequestRedraw();
-            }
-        }
 
-        if (ImGui.Checkbox("Show separate Visible group", ref showVisibleSeparate))
-        {
-            _configService.Current.ShowVisibleUsersSeparately = showVisibleSeparate;
-            _configService.Save();
-            Mediator.Publish(new RefreshUiMessage());
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        _uiShared.DrawHelpText("This will show all currently visible users in a special 'Visible' group in the main UI.");
-
-        using (ImRaii.Disabled(!showVisibleSeparate))
-        {
-            using var indent = ImRaii.PushIndent();
-            if (ImGui.Checkbox("Show Syncshell Users in Visible Group", ref groupInVisible))
-            {
-                _configService.Current.ShowSyncshellUsersInVisible = groupInVisible;
-                _configService.Save();
-                Mediator.Publish(new RefreshUiMessage());
-            }
-        }
-
-        if (ImGui.Checkbox("Show separate Offline group", ref showOfflineSeparate))
-        {
-            _configService.Current.ShowOfflineUsersSeparately = showOfflineSeparate;
-            _configService.Save();
-            Mediator.Publish(new RefreshUiMessage());
-        }
-        _uiShared.DrawHelpText("This will show all currently offline users in a special 'Offline' group in the main UI.");
-
-        using (ImRaii.Disabled(!showOfflineSeparate))
-        {
-            using var indent = ImRaii.PushIndent();
-            if (ImGui.Checkbox("Show separate Offline group for Syncshell users", ref syncshellOfflineSeparate))
-            {
-                _configService.Current.ShowSyncshellOfflineUsersSeparately = syncshellOfflineSeparate;
-                _configService.Save();
-                Mediator.Publish(new RefreshUiMessage());
-            }
-        }
-
-        if (ImGui.Checkbox("Group up all syncshells in one folder", ref groupUpSyncshells))
-        {
-            _configService.Current.GroupUpSyncshells = groupUpSyncshells;
-            _configService.Save();
-            Mediator.Publish(new RefreshUiMessage());
-        }
-        _uiShared.DrawHelpText("This will group up all Syncshells in a special 'All Syncshells' folder in the main UI.");
-
-        if (ImGui.Checkbox("Show player name for visible players", ref showNameInsteadOfNotes))
-        {
-            _configService.Current.ShowCharacterNameInsteadOfNotesForVisible = showNameInsteadOfNotes;
-            _configService.Save();
-            Mediator.Publish(new RefreshUiMessage());
-        }
-        _uiShared.DrawHelpText("This will show the character name instead of custom set note when a character is visible");
-
-        ImGui.Indent();
-        if (!_configService.Current.ShowCharacterNameInsteadOfNotesForVisible) ImGui.BeginDisabled();
-        if (ImGui.Checkbox("Prefer notes over player names for visible players", ref preferNotesInsteadOfName))
-        {
-            _configService.Current.PreferNotesOverNamesForVisible = preferNotesInsteadOfName;
-            _configService.Save();
-            Mediator.Publish(new RefreshUiMessage());
-        }
-        _uiShared.DrawHelpText("If you set a note for a player it will be shown instead of the player name");
-        if (!_configService.Current.ShowCharacterNameInsteadOfNotesForVisible) ImGui.EndDisabled();
-        ImGui.Unindent();
-
-        if (ImGui.Checkbox("Set visible pairs as focus targets when clicking the eye", ref useFocusTarget))
-        {
-            _configService.Current.UseFocusTarget = useFocusTarget;
-            _configService.Save();
-        }
-
-        if (ImGui.Checkbox("Show Lightless Profiles on Hover", ref showProfiles))
-        {
-            Mediator.Publish(new ClearProfileDataMessage());
-            _configService.Current.ProfilesShow = showProfiles;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("This will show the configured user profile after a set delay");
-        ImGui.Indent();
-        if (!showProfiles) ImGui.BeginDisabled();
-        if (ImGui.Checkbox("Popout profiles on the right", ref profileOnRight))
-        {
-            _configService.Current.ProfilePopoutRight = profileOnRight;
-            _configService.Save();
-            Mediator.Publish(new CompactUiChange(Vector2.Zero, Vector2.Zero));
-        }
-        _uiShared.DrawHelpText("Will show profiles on the right side of the main UI");
-        if (ImGui.SliderFloat("Hover Delay", ref profileDelay, 1, 10))
-        {
-            _configService.Current.ProfileDelay = profileDelay;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("Delay until the profile should be displayed");
-        if (!showProfiles) ImGui.EndDisabled();
-        ImGui.Unindent();
-        if (ImGui.Checkbox("Show profiles marked as NSFW", ref showNsfwProfiles))
-        {
-            Mediator.Publish(new ClearProfileDataMessage());
-            _configService.Current.ProfilesAllowNsfw = showNsfwProfiles;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("Will show profiles that have the NSFW tag enabled");
 
         ImGui.Separator();
+
+        if (_uiShared.MediumTreeNode("Pair List", UIColors.Get("LightlessPurple")))
+        {
+            if (ImGui.Checkbox("Show separate Visible group", ref showVisibleSeparate))
+            {
+                _configService.Current.ShowVisibleUsersSeparately = showVisibleSeparate;
+                _configService.Save();
+                Mediator.Publish(new RefreshUiMessage());
+            }
+            _uiShared.DrawHelpText("This will show all currently visible users in a special 'Visible' group in the main UI.");
+
+            using (ImRaii.Disabled(!showVisibleSeparate))
+            {
+                using var indent = ImRaii.PushIndent();
+                if (ImGui.Checkbox("Show Syncshell Users in Visible Group", ref groupInVisible))
+                {
+                    _configService.Current.ShowSyncshellUsersInVisible = groupInVisible;
+                    _configService.Save();
+                    Mediator.Publish(new RefreshUiMessage());
+                }
+            }
+
+            if (ImGui.Checkbox("Show separate Offline group", ref showOfflineSeparate))
+            {
+                _configService.Current.ShowOfflineUsersSeparately = showOfflineSeparate;
+                _configService.Save();
+                Mediator.Publish(new RefreshUiMessage());
+            }
+            _uiShared.DrawHelpText("This will show all currently offline users in a special 'Offline' group in the main UI.");
+
+            using (ImRaii.Disabled(!showOfflineSeparate))
+            {
+                using var indent = ImRaii.PushIndent();
+                if (ImGui.Checkbox("Show separate Offline group for Syncshell users", ref syncshellOfflineSeparate))
+                {
+                    _configService.Current.ShowSyncshellOfflineUsersSeparately = syncshellOfflineSeparate;
+                    _configService.Save();
+                    Mediator.Publish(new RefreshUiMessage());
+                }
+            }
+
+            if (ImGui.Checkbox("Group up all syncshells in one folder", ref groupUpSyncshells))
+            {
+                _configService.Current.GroupUpSyncshells = groupUpSyncshells;
+                _configService.Save();
+                Mediator.Publish(new RefreshUiMessage());
+            }
+            _uiShared.DrawHelpText("This will group up all Syncshells in a special 'All Syncshells' folder in the main UI.");
+
+            if (ImGui.Checkbox("Show player name for visible players", ref showNameInsteadOfNotes))
+            {
+                _configService.Current.ShowCharacterNameInsteadOfNotesForVisible = showNameInsteadOfNotes;
+                _configService.Save();
+                Mediator.Publish(new RefreshUiMessage());
+            }
+            _uiShared.DrawHelpText("This will show the character name instead of custom set note when a character is visible");
+
+            ImGui.Indent();
+            if (!_configService.Current.ShowCharacterNameInsteadOfNotesForVisible) ImGui.BeginDisabled();
+            if (ImGui.Checkbox("Prefer notes over player names for visible players", ref preferNotesInsteadOfName))
+            {
+                _configService.Current.PreferNotesOverNamesForVisible = preferNotesInsteadOfName;
+                _configService.Save();
+                Mediator.Publish(new RefreshUiMessage());
+            }
+            _uiShared.DrawHelpText("If you set a note for a player it will be shown instead of the player name");
+            if (!_configService.Current.ShowCharacterNameInsteadOfNotesForVisible) ImGui.EndDisabled();
+            ImGui.Unindent();
+
+            if (ImGui.Checkbox("Set visible pairs as focus targets when clicking the eye", ref useFocusTarget))
+            {
+                _configService.Current.UseFocusTarget = useFocusTarget;
+                _configService.Save();
+            }
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
+        }
+
+        ImGui.Separator();
+        if (_uiShared.MediumTreeNode("Profiles", UIColors.Get("LightlessPurple")))
+        {
+            if (ImGui.Checkbox("Show Lightless Profiles on Hover", ref showProfiles))
+            {
+                Mediator.Publish(new ClearProfileDataMessage());
+                _configService.Current.ProfilesShow = showProfiles;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("This will show the configured user profile after a set delay");
+            ImGui.Indent();
+            if (!showProfiles) ImGui.BeginDisabled();
+            if (ImGui.Checkbox("Popout profiles on the right", ref profileOnRight))
+            {
+                _configService.Current.ProfilePopoutRight = profileOnRight;
+                _configService.Save();
+                Mediator.Publish(new CompactUiChange(Vector2.Zero, Vector2.Zero));
+            }
+            _uiShared.DrawHelpText("Will show profiles on the right side of the main UI");
+            if (ImGui.SliderFloat("Hover Delay", ref profileDelay, 1, 10))
+            {
+                _configService.Current.ProfileDelay = profileDelay;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Delay until the profile should be displayed");
+            if (!showProfiles) ImGui.EndDisabled();
+            ImGui.Unindent();
+            if (ImGui.Checkbox("Show profiles marked as NSFW", ref showNsfwProfiles))
+            {
+                Mediator.Publish(new ClearProfileDataMessage());
+                _configService.Current.ProfilesAllowNsfw = showNsfwProfiles;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Will show profiles that have the NSFW tag enabled");
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
+        }
+
+        ImGui.Separator();
+        ImGui.Dummy(new Vector2(10));
+        _uiShared.BigText("Notifications");
 
         var disableOptionalPluginWarnings = _configService.Current.DisableOptionalPluginWarnings;
         var onlineNotifs = _configService.Current.ShowOnlineNotifications;
         var onlineNotifsPairsOnly = _configService.Current.ShowOnlineNotificationsOnlyForIndividualPairs;
         var onlineNotifsNamedOnly = _configService.Current.ShowOnlineNotificationsOnlyForNamedPairs;
-        _uiShared.BigText("Notifications");
 
-        _uiShared.DrawCombo("Info Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
-        (i) =>
+        if (_uiShared.MediumTreeNode("Display", UIColors.Get("LightlessPurple")))
         {
-            _configService.Current.InfoNotification = i;
-            _configService.Save();
-        }, _configService.Current.InfoNotification);
-        _uiShared.DrawHelpText("The location where \"Info\" notifications will display."
-                      + Environment.NewLine + "'Nowhere' will not show any Info notifications"
-                      + Environment.NewLine + "'Chat' will print Info notifications in chat"
-                      + Environment.NewLine + "'Toast' will show Warning toast notifications in the bottom right corner"
-                      + Environment.NewLine + "'Both' will show chat as well as the toast notification");
+            _uiShared.DrawCombo("Info Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
+            (i) =>
+            {
+                _configService.Current.InfoNotification = i;
+                _configService.Save();
+            }, _configService.Current.InfoNotification);
+            _uiShared.DrawHelpText("The location where \"Info\" notifications will display."
+                          + Environment.NewLine + "'Nowhere' will not show any Info notifications"
+                          + Environment.NewLine + "'Chat' will print Info notifications in chat"
+                          + Environment.NewLine + "'Toast' will show Warning toast notifications in the bottom right corner"
+                          + Environment.NewLine + "'Both' will show chat as well as the toast notification");
 
-        _uiShared.DrawCombo("Warning Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
-        (i) =>
-        {
-            _configService.Current.WarningNotification = i;
-            _configService.Save();
-        }, _configService.Current.WarningNotification);
-        _uiShared.DrawHelpText("The location where \"Warning\" notifications will display."
-                              + Environment.NewLine + "'Nowhere' will not show any Warning notifications"
-                              + Environment.NewLine + "'Chat' will print Warning notifications in chat"
-                              + Environment.NewLine + "'Toast' will show Warning toast notifications in the bottom right corner"
-                              + Environment.NewLine + "'Both' will show chat as well as the toast notification");
+            _uiShared.DrawCombo("Warning Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
+            (i) =>
+            {
+                _configService.Current.WarningNotification = i;
+                _configService.Save();
+            }, _configService.Current.WarningNotification);
+            _uiShared.DrawHelpText("The location where \"Warning\" notifications will display."
+                                  + Environment.NewLine + "'Nowhere' will not show any Warning notifications"
+                                  + Environment.NewLine + "'Chat' will print Warning notifications in chat"
+                                  + Environment.NewLine + "'Toast' will show Warning toast notifications in the bottom right corner"
+                                  + Environment.NewLine + "'Both' will show chat as well as the toast notification");
 
-        _uiShared.DrawCombo("Error Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
-        (i) =>
-        {
-            _configService.Current.ErrorNotification = i;
-            _configService.Save();
-        }, _configService.Current.ErrorNotification);
-        _uiShared.DrawHelpText("The location where \"Error\" notifications will display."
-                              + Environment.NewLine + "'Nowhere' will not show any Error notifications"
-                              + Environment.NewLine + "'Chat' will print Error notifications in chat"
-                              + Environment.NewLine + "'Toast' will show Error toast notifications in the bottom right corner"
-                              + Environment.NewLine + "'Both' will show chat as well as the toast notification");
+            _uiShared.DrawCombo("Error Notification Display##settingsUi", (NotificationLocation[])Enum.GetValues(typeof(NotificationLocation)), (i) => i.ToString(),
+            (i) =>
+            {
+                _configService.Current.ErrorNotification = i;
+                _configService.Save();
+            }, _configService.Current.ErrorNotification);
+            _uiShared.DrawHelpText("The location where \"Error\" notifications will display."
+                                  + Environment.NewLine + "'Nowhere' will not show any Error notifications"
+                                  + Environment.NewLine + "'Chat' will print Error notifications in chat"
+                                  + Environment.NewLine + "'Toast' will show Error toast notifications in the bottom right corner"
+                                  + Environment.NewLine + "'Both' will show chat as well as the toast notification");
 
-        if (ImGui.Checkbox("Disable optional plugin warnings", ref disableOptionalPluginWarnings))
-        {
-            _configService.Current.DisableOptionalPluginWarnings = disableOptionalPluginWarnings;
-            _configService.Save();
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        _uiShared.DrawHelpText("Enabling this will not show any \"Warning\" labeled messages for missing optional plugins.");
-        if (ImGui.Checkbox("Enable online notifications", ref onlineNotifs))
-        {
-            _configService.Current.ShowOnlineNotifications = onlineNotifs;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("Enabling this will show a small notification (type: Info) in the bottom right corner when pairs go online.");
 
-        using var disabled = ImRaii.Disabled(!onlineNotifs);
-        if (ImGui.Checkbox("Notify only for individual pairs", ref onlineNotifsPairsOnly))
+        ImGui.Separator();
+
+        if (_uiShared.MediumTreeNode("Toggles", UIColors.Get("LightlessPurple")))
         {
-            _configService.Current.ShowOnlineNotificationsOnlyForIndividualPairs = onlineNotifsPairsOnly;
-            _configService.Save();
+            if (ImGui.Checkbox("Disable optional plugin warnings", ref disableOptionalPluginWarnings))
+            {
+                _configService.Current.DisableOptionalPluginWarnings = disableOptionalPluginWarnings;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Enabling this will not show any \"Warning\" labeled messages for missing optional plugins.");
+            if (ImGui.Checkbox("Enable online notifications", ref onlineNotifs))
+            {
+                _configService.Current.ShowOnlineNotifications = onlineNotifs;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Enabling this will show a small notification (type: Info) in the bottom right corner when pairs go online.");
+
+            using var disabled = ImRaii.Disabled(!onlineNotifs);
+            if (ImGui.Checkbox("Notify only for individual pairs", ref onlineNotifsPairsOnly))
+            {
+                _configService.Current.ShowOnlineNotificationsOnlyForIndividualPairs = onlineNotifsPairsOnly;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Enabling this will only show online notifications (type: Info) for individual pairs.");
+            if (ImGui.Checkbox("Notify only for named pairs", ref onlineNotifsNamedOnly))
+            {
+                _configService.Current.ShowOnlineNotificationsOnlyForNamedPairs = onlineNotifsNamedOnly;
+                _configService.Save();
+            }
+            _uiShared.DrawHelpText("Enabling this will only show online notifications (type: Info) for pairs where you have set an individual note.");
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        _uiShared.DrawHelpText("Enabling this will only show online notifications (type: Info) for individual pairs.");
-        if (ImGui.Checkbox("Notify only for named pairs", ref onlineNotifsNamedOnly))
-        {
-            _configService.Current.ShowOnlineNotificationsOnlyForNamedPairs = onlineNotifsNamedOnly;
-            _configService.Save();
-        }
-        _uiShared.DrawHelpText("Enabling this will only show online notifications (type: Info) for pairs where you have set an individual note.");
     }
 
     private void DrawPerformance()
     {
-        _uiShared.BigText("Performance Settings");
+        _uiShared.UnderlinedBigText("Performance Settings", UIColors.Get("LightlessBlue"));
+        ImGui.Dummy(new Vector2(10));
         UiSharedService.TextWrapped("The configuration options here are to give you more informed warnings and automation when it comes to other performance-intensive synced players.");
-        ImGui.Dummy(new Vector2(10));
-        ImGui.Separator();
-        ImGui.Dummy(new Vector2(10));
+
         bool showPerformanceIndicator = _playerPerformanceConfigService.Current.ShowPerformanceIndicator;
-        if (ImGui.Checkbox("Show performance indicator", ref showPerformanceIndicator))
+
+        if (_uiShared.MediumTreeNode("Warnings", UIColors.Get("LightlessPurple")))
         {
-            _playerPerformanceConfigService.Current.ShowPerformanceIndicator = showPerformanceIndicator;
-            _playerPerformanceConfigService.Save();
-        }
-        _uiShared.DrawHelpText("Will show a performance indicator when players exceed defined thresholds in Lightless UI." + Environment.NewLine + "Will use warning thresholds.");
-        bool warnOnExceedingThresholds = _playerPerformanceConfigService.Current.WarnOnExceedingThresholds;
-        if (ImGui.Checkbox("Warn on loading in players exceeding performance thresholds", ref warnOnExceedingThresholds))
-        {
-            _playerPerformanceConfigService.Current.WarnOnExceedingThresholds = warnOnExceedingThresholds;
-            _playerPerformanceConfigService.Save();
-        }
-        _uiShared.DrawHelpText("Lightless will print a warning in chat once per session of meeting those people. Will not warn on players with preferred permissions.");
-        using (ImRaii.Disabled(!warnOnExceedingThresholds && !showPerformanceIndicator))
-        {
-            using var indent = ImRaii.PushIndent();
-            var warnOnPref = _playerPerformanceConfigService.Current.WarnOnPreferredPermissionsExceedingThresholds;
-            if (ImGui.Checkbox("Warn/Indicate also on players with preferred permissions", ref warnOnPref))
+            if (ImGui.Checkbox("Show performance indicator", ref showPerformanceIndicator))
             {
-                _playerPerformanceConfigService.Current.WarnOnPreferredPermissionsExceedingThresholds = warnOnPref;
+                _playerPerformanceConfigService.Current.ShowPerformanceIndicator = showPerformanceIndicator;
                 _playerPerformanceConfigService.Save();
             }
-            _uiShared.DrawHelpText("Lightless will also print warnings and show performance indicator for players where you enabled preferred permissions. If warning in general is disabled, this will not produce any warnings.");
-        }
-        using (ImRaii.Disabled(!showPerformanceIndicator && !warnOnExceedingThresholds))
-        {
-            var vram = _playerPerformanceConfigService.Current.VRAMSizeWarningThresholdMiB;
-            var tris = _playerPerformanceConfigService.Current.TrisWarningThresholdThousands;
-            ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
-            if (ImGui.InputInt("Warning VRAM threshold", ref vram))
+            _uiShared.DrawHelpText("Will show a performance indicator when players exceed defined thresholds in Lightless UI." + Environment.NewLine + "Will use warning thresholds.");
+            bool warnOnExceedingThresholds = _playerPerformanceConfigService.Current.WarnOnExceedingThresholds;
+            if (ImGui.Checkbox("Warn on loading in players exceeding performance thresholds", ref warnOnExceedingThresholds))
             {
-                _playerPerformanceConfigService.Current.VRAMSizeWarningThresholdMiB = vram;
+                _playerPerformanceConfigService.Current.WarnOnExceedingThresholds = warnOnExceedingThresholds;
                 _playerPerformanceConfigService.Save();
             }
-            ImGui.SameLine();
-            ImGui.Text("(MiB)");
-            _uiShared.DrawHelpText("Limit in MiB of approximate VRAM usage to trigger warning or performance indicator on UI." + UiSharedService.TooltipSeparator
-                + "Default: 375 MiB");
-            ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
-            if (ImGui.InputInt("Warning Triangle threshold", ref tris))
+            _uiShared.DrawHelpText("Lightless will print a warning in chat once per session of meeting those people. Will not warn on players with preferred permissions.");
+            using (ImRaii.Disabled(!warnOnExceedingThresholds && !showPerformanceIndicator))
             {
-                _playerPerformanceConfigService.Current.TrisWarningThresholdThousands = tris;
-                _playerPerformanceConfigService.Save();
+                using var indent = ImRaii.PushIndent();
+                var warnOnPref = _playerPerformanceConfigService.Current.WarnOnPreferredPermissionsExceedingThresholds;
+                if (ImGui.Checkbox("Warn/Indicate also on players with preferred permissions", ref warnOnPref))
+                {
+                    _playerPerformanceConfigService.Current.WarnOnPreferredPermissionsExceedingThresholds = warnOnPref;
+                    _playerPerformanceConfigService.Save();
+                }
+                _uiShared.DrawHelpText("Lightless will also print warnings and show performance indicator for players where you enabled preferred permissions. If warning in general is disabled, this will not produce any warnings.");
             }
-            ImGui.SameLine();
-            ImGui.Text("(thousand triangles)");
-            _uiShared.DrawHelpText("Limit in approximate used triangles from mods to trigger warning or performance indicator on UI." + UiSharedService.TooltipSeparator
-                + "Default: 165 thousand");
+            using (ImRaii.Disabled(!showPerformanceIndicator && !warnOnExceedingThresholds))
+            {
+                var vram = _playerPerformanceConfigService.Current.VRAMSizeWarningThresholdMiB;
+                var tris = _playerPerformanceConfigService.Current.TrisWarningThresholdThousands;
+                ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
+                if (ImGui.InputInt("Warning VRAM threshold", ref vram))
+                {
+                    _playerPerformanceConfigService.Current.VRAMSizeWarningThresholdMiB = vram;
+                    _playerPerformanceConfigService.Save();
+                }
+                ImGui.SameLine();
+                ImGui.Text("(MiB)");
+                _uiShared.DrawHelpText("Limit in MiB of approximate VRAM usage to trigger warning or performance indicator on UI." + UiSharedService.TooltipSeparator
+                    + "Default: 375 MiB");
+                ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
+                if (ImGui.InputInt("Warning Triangle threshold", ref tris))
+                {
+                    _playerPerformanceConfigService.Current.TrisWarningThresholdThousands = tris;
+                    _playerPerformanceConfigService.Save();
+                }
+                ImGui.SameLine();
+                ImGui.Text("(thousand triangles)");
+                _uiShared.DrawHelpText("Limit in approximate used triangles from mods to trigger warning or performance indicator on UI." + UiSharedService.TooltipSeparator
+                    + "Default: 165 thousand");
+            }
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        ImGui.Dummy(new Vector2(10));
+
+        ImGui.Separator();
+
         bool autoPause = _playerPerformanceConfigService.Current.AutoPausePlayersExceedingThresholds;
         bool autoPauseEveryone = _playerPerformanceConfigService.Current.AutoPausePlayersWithPreferredPermissionsExceedingThresholds;
-        if (ImGui.Checkbox("Automatically pause players exceeding thresholds", ref autoPause))
+
+        if (_uiShared.MediumTreeNode("Auto Pause", UIColors.Get("LightlessPurple")))
         {
-            _playerPerformanceConfigService.Current.AutoPausePlayersExceedingThresholds = autoPause;
-            _playerPerformanceConfigService.Save();
+            if (ImGui.Checkbox("Automatically pause players exceeding thresholds", ref autoPause))
+            {
+                _playerPerformanceConfigService.Current.AutoPausePlayersExceedingThresholds = autoPause;
+                _playerPerformanceConfigService.Save();
+            }
+            _uiShared.DrawHelpText("When enabled, it will automatically pause all players without preferred permissions that exceed the thresholds defined below." + Environment.NewLine
+                + "Will print a warning in chat when a player got paused automatically."
+                + UiSharedService.TooltipSeparator + "Warning: this will not automatically unpause those people again, you will have to do this manually.");
+            using (ImRaii.Disabled(!autoPause))
+            {
+                using var indent = ImRaii.PushIndent();
+                if (ImGui.Checkbox("Automatically pause also players with preferred permissions", ref autoPauseEveryone))
+                {
+                    _playerPerformanceConfigService.Current.AutoPausePlayersWithPreferredPermissionsExceedingThresholds = autoPauseEveryone;
+                    _playerPerformanceConfigService.Save();
+                }
+                _uiShared.DrawHelpText("When enabled, will automatically pause all players regardless of preferred permissions that exceed thresholds defined below." + UiSharedService.TooltipSeparator +
+                    "Warning: this will not automatically unpause those people again, you will have to do this manually.");
+                var vramAuto = _playerPerformanceConfigService.Current.VRAMSizeAutoPauseThresholdMiB;
+                var trisAuto = _playerPerformanceConfigService.Current.TrisAutoPauseThresholdThousands;
+                ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
+                if (ImGui.InputInt("Auto Pause VRAM threshold", ref vramAuto))
+                {
+                    _playerPerformanceConfigService.Current.VRAMSizeAutoPauseThresholdMiB = vramAuto;
+                    _playerPerformanceConfigService.Save();
+                }
+                ImGui.SameLine();
+                ImGui.Text("(MiB)");
+                _uiShared.DrawHelpText("When a loading in player and their VRAM usage exceeds this amount, automatically pauses the synced player." + UiSharedService.TooltipSeparator
+                    + "Default: 550 MiB");
+                ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
+                if (ImGui.InputInt("Auto Pause Triangle threshold", ref trisAuto))
+                {
+                    _playerPerformanceConfigService.Current.TrisAutoPauseThresholdThousands = trisAuto;
+                    _playerPerformanceConfigService.Save();
+                }
+                ImGui.SameLine();
+                ImGui.Text("(thousand triangles)");
+                _uiShared.DrawHelpText("When a loading in player and their triangle count exceeds this amount, automatically pauses the synced player." + UiSharedService.TooltipSeparator
+                    + "Default: 250 thousand");
+            }
+
+            _uiShared.ColoredSeparator(UIColors.Get("LightlessPurple"), 1.5f);
+            ImGui.TreePop();
         }
-        _uiShared.DrawHelpText("When enabled, it will automatically pause all players without preferred permissions that exceed the thresholds defined below." + Environment.NewLine
-            + "Will print a warning in chat when a player got paused automatically."
-            + UiSharedService.TooltipSeparator + "Warning: this will not automatically unpause those people again, you will have to do this manually.");
-        using (ImRaii.Disabled(!autoPause))
-        {
-            using var indent = ImRaii.PushIndent();
-            if (ImGui.Checkbox("Automatically pause also players with preferred permissions", ref autoPauseEveryone))
-            {
-                _playerPerformanceConfigService.Current.AutoPausePlayersWithPreferredPermissionsExceedingThresholds = autoPauseEveryone;
-                _playerPerformanceConfigService.Save();
-            }
-            _uiShared.DrawHelpText("When enabled, will automatically pause all players regardless of preferred permissions that exceed thresholds defined below." + UiSharedService.TooltipSeparator +
-                "Warning: this will not automatically unpause those people again, you will have to do this manually.");
-            var vramAuto = _playerPerformanceConfigService.Current.VRAMSizeAutoPauseThresholdMiB;
-            var trisAuto = _playerPerformanceConfigService.Current.TrisAutoPauseThresholdThousands;
-            ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
-            if (ImGui.InputInt("Auto Pause VRAM threshold", ref vramAuto))
-            {
-                _playerPerformanceConfigService.Current.VRAMSizeAutoPauseThresholdMiB = vramAuto;
-                _playerPerformanceConfigService.Save();
-            }
-            ImGui.SameLine();
-            ImGui.Text("(MiB)");
-            _uiShared.DrawHelpText("When a loading in player and their VRAM usage exceeds this amount, automatically pauses the synced player." + UiSharedService.TooltipSeparator
-                + "Default: 550 MiB");
-            ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
-            if (ImGui.InputInt("Auto Pause Triangle threshold", ref trisAuto))
-            {
-                _playerPerformanceConfigService.Current.TrisAutoPauseThresholdThousands = trisAuto;
-                _playerPerformanceConfigService.Save();
-            }
-            ImGui.SameLine();
-            ImGui.Text("(thousand triangles)");
-            _uiShared.DrawHelpText("When a loading in player and their triangle count exceeds this amount, automatically pauses the synced player." + UiSharedService.TooltipSeparator
-                + "Default: 250 thousand");
-        }
+
+        ImGui.Separator();
         ImGui.Dummy(new Vector2(10));
-        _uiShared.BigText("Whitelisted UIDs");
+
+        _uiShared.UnderlinedBigText("Whitelisted UIDs", UIColors.Get("LightlessBlue"));
+        ImGuiHelpers.ScaledDummy(5);
+
         UiSharedService.TextWrapped("The entries in the list below will be ignored for all warnings and auto pause operations.");
         ImGui.Dummy(new Vector2(10));
         ImGui.SetNextItemWidth(200 * ImGuiHelpers.GlobalScale);
@@ -1328,87 +1423,99 @@ public class SettingsUi : WindowMediatorSubscriberBase
         _lastTab = "Service Settings";
         if (ApiController.ServerAlive)
         {
-            _uiShared.BigText("Service Actions");
-            ImGuiHelpers.ScaledDummy(new Vector2(5, 5));
-            if (ImGui.Button("Delete all my files"))
+            _uiShared.UnderlinedBigText("Service Actions", UIColors.Get("LightlessBlue"));
+
+            ImGui.Dummy(new Vector2(10));
+            if (_uiShared.MediumTreeNode("Deletion", UIColors.Get("DimRed")))
             {
-                _deleteFilesPopupModalShown = true;
-                ImGui.OpenPopup("Delete all your files?");
-            }
-
-            _uiShared.DrawHelpText("Completely deletes all your uploaded files on the service.");
-
-            if (ImGui.BeginPopupModal("Delete all your files?", ref _deleteFilesPopupModalShown, UiSharedService.PopupWindowFlags))
-            {
-                UiSharedService.TextWrapped(
-                    "All your own uploaded files on the service will be deleted.\nThis operation cannot be undone.");
-                ImGui.TextUnformatted("Are you sure you want to continue?");
-                ImGui.Separator();
-                ImGui.Spacing();
-
-                var buttonSize = (ImGui.GetWindowContentRegionMax().X - ImGui.GetWindowContentRegionMin().X -
-                                 ImGui.GetStyle().ItemSpacing.X) / 2;
-
-                if (ImGui.Button("Delete everything", new Vector2(buttonSize, 0)))
+                ImGuiHelpers.ScaledDummy(new Vector2(5, 5));
+                if (ImGui.Button("Delete all my files"))
                 {
-                    _ = Task.Run(_fileTransferManager.DeleteAllFiles);
-                    _deleteFilesPopupModalShown = false;
+                    _deleteFilesPopupModalShown = true;
+                    ImGui.OpenPopup("Delete all your files?");
                 }
 
+                _uiShared.DrawHelpText("Completely deletes all your uploaded files on the service.");
+
+                if (ImGui.BeginPopupModal("Delete all your files?", ref _deleteFilesPopupModalShown, UiSharedService.PopupWindowFlags))
+                {
+                    UiSharedService.TextWrapped(
+                        "All your own uploaded files on the service will be deleted.\nThis operation cannot be undone.");
+                    ImGui.TextUnformatted("Are you sure you want to continue?");
+                    ImGui.Separator();
+                    ImGui.Spacing();
+
+                    var buttonSize = (ImGui.GetWindowContentRegionMax().X - ImGui.GetWindowContentRegionMin().X -
+                                     ImGui.GetStyle().ItemSpacing.X) / 2;
+
+                    if (ImGui.Button("Delete everything", new Vector2(buttonSize, 0)))
+                    {
+                        _ = Task.Run(_fileTransferManager.DeleteAllFiles);
+                        _deleteFilesPopupModalShown = false;
+                    }
+
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Cancel##cancelDelete", new Vector2(buttonSize, 0)))
+                    {
+                        _deleteFilesPopupModalShown = false;
+                    }
+
+                    UiSharedService.SetScaledWindowSize(325);
+                    ImGui.EndPopup();
+                }
                 ImGui.SameLine();
-
-                if (ImGui.Button("Cancel##cancelDelete", new Vector2(buttonSize, 0)))
+                if (ImGui.Button("Delete account"))
                 {
-                    _deleteFilesPopupModalShown = false;
+                    _deleteAccountPopupModalShown = true;
+                    ImGui.OpenPopup("Delete your account?");
                 }
 
-                UiSharedService.SetScaledWindowSize(325);
-                ImGui.EndPopup();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button("Delete account"))
-            {
-                _deleteAccountPopupModalShown = true;
-                ImGui.OpenPopup("Delete your account?");
-            }
+                _uiShared.DrawHelpText("Completely deletes your account and all uploaded files to the service.");
 
-            _uiShared.DrawHelpText("Completely deletes your account and all uploaded files to the service.");
-
-            if (ImGui.BeginPopupModal("Delete your account?", ref _deleteAccountPopupModalShown, UiSharedService.PopupWindowFlags))
-            {
-                UiSharedService.TextWrapped(
-                    "Your account and all associated files and data on the service will be deleted.");
-                UiSharedService.TextWrapped("Your UID will be removed from all pairing lists.");
-                ImGui.TextUnformatted("Are you sure you want to continue?");
-                ImGui.Separator();
-                ImGui.Spacing();
-
-                var buttonSize = (ImGui.GetWindowContentRegionMax().X - ImGui.GetWindowContentRegionMin().X -
-                                  ImGui.GetStyle().ItemSpacing.X) / 2;
-
-                if (ImGui.Button("Delete account", new Vector2(buttonSize, 0)))
+                if (ImGui.BeginPopupModal("Delete your account?", ref _deleteAccountPopupModalShown, UiSharedService.PopupWindowFlags))
                 {
-                    _ = Task.Run(ApiController.UserDelete);
-                    _deleteAccountPopupModalShown = false;
-                    Mediator.Publish(new SwitchToIntroUiMessage());
+                    UiSharedService.TextWrapped(
+                        "Your account and all associated files and data on the service will be deleted.");
+                    UiSharedService.TextWrapped("Your UID will be removed from all pairing lists.");
+                    ImGui.TextUnformatted("Are you sure you want to continue?");
+                    ImGui.Separator();
+                    ImGui.Spacing();
+
+                    var buttonSize = (ImGui.GetWindowContentRegionMax().X - ImGui.GetWindowContentRegionMin().X -
+                                      ImGui.GetStyle().ItemSpacing.X) / 2;
+
+                    if (ImGui.Button("Delete account", new Vector2(buttonSize, 0)))
+                    {
+                        _ = Task.Run(ApiController.UserDelete);
+                        _deleteAccountPopupModalShown = false;
+                        Mediator.Publish(new SwitchToIntroUiMessage());
+                    }
+
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Cancel##cancelDelete", new Vector2(buttonSize, 0)))
+                    {
+                        _deleteAccountPopupModalShown = false;
+                    }
+
+                    UiSharedService.SetScaledWindowSize(325);
+                    ImGui.EndPopup();
                 }
 
-                ImGui.SameLine();
-
-                if (ImGui.Button("Cancel##cancelDelete", new Vector2(buttonSize, 0)))
-                {
-                    _deleteAccountPopupModalShown = false;
-                }
-
-                UiSharedService.SetScaledWindowSize(325);
-                ImGui.EndPopup();
+                _uiShared.ColoredSeparator(UIColors.Get("DimRed"), 1.5f);
+                ImGui.TreePop();
             }
+
             ImGui.Separator();
         }
 
-        _uiShared.BigText("Service & Character Settings");
-        ImGuiHelpers.ScaledDummy(new Vector2(5, 5));
+        ImGui.Dummy(new Vector2(10));
+        _uiShared.MediumText("Service & Character Settings", UIColors.Get("LightlessPurple"));
+        ImGui.Dummy(new Vector2(5));
+
         var sendCensus = _serverConfigurationManager.SendCensusData;
+
         if (ImGui.Checkbox("Send Statistical Census Data", ref sendCensus))
         {
             _serverConfigurationManager.SendCensusData = sendCensus;
@@ -1881,6 +1988,8 @@ public class SettingsUi : WindowMediatorSubscriberBase
             }
             ImGui.EndTabBar();
         }
+
+        ImGui.Dummy(new Vector2(10));
     }
 
     private int _lastSelectedServerIndex = -1;

@@ -114,6 +114,15 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
                 SizePx = 35
             }));
         });
+
+        MediumFont = _pluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
+        {
+            e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
+            {
+                SizePx = 22,
+            }));
+        });
+
         GameFont = _pluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new(GameFontFamilyAndSize.Axis12));
         IconFont = _pluginInterface.UiBuilder.IconFontFixedWidthHandle;
     }
@@ -133,6 +142,8 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
     public string PlayerName => _dalamudUtil.GetPlayerName();
 
     public IFontHandle UidFont { get; init; }
+    public IFontHandle MediumFont { get; init; }
+
     public Dictionary<ushort, string> WorldData => _dalamudUtil.WorldData.Value;
     public uint WorldId => _dalamudUtil.GetHomeWorldId();
 
@@ -432,6 +443,79 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
     public void BigText(string text, Vector4? color = null)
     {
         FontText(text, UidFont, color);
+    }
+
+    public void UnderlinedBigText(
+        string text,
+        Vector4? textColor = null,
+        Vector4? underlineColor = null,
+        float underlineThickness = 2f)
+    {
+        using var font = UidFont.Push();
+
+        var drawList = ImGui.GetWindowDrawList();
+        var textSize = ImGui.CalcTextSize(text);
+        var pos = ImGui.GetCursorScreenPos();
+        var text_color = textColor ?? ImGuiColors.DalamudWhite;
+        var line_color = underlineColor ?? text_color;
+
+        ImGui.PushStyleColor(ImGuiCol.Text, text_color);
+        ImGui.TextUnformatted(text);
+        ImGui.PopStyleColor();
+
+        var lineY = pos.Y + textSize.Y + 2f;
+        drawList.AddLine(
+            new Vector2(pos.X, lineY),
+            new Vector2(pos.X + textSize.X, lineY),
+            ImGui.GetColorU32(line_color),
+            underlineThickness * ImGuiHelpers.GlobalScale
+        );
+    }
+
+    public void ColoredSeparator(Vector4? color = null, float thickness = 1f, float indent = 0f)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetCursorScreenPos();
+        var max = new Vector2(min.X + ImGui.GetContentRegionAvail().X, min.Y);
+
+        min.X += indent;
+        max.X -= indent;
+
+        drawList.AddLine(
+            min,
+            new Vector2(max.X, min.Y),
+            ImGui.GetColorU32(color ?? ImGuiColors.DalamudGrey),
+            thickness * ImGuiHelpers.GlobalScale
+        );
+
+        ImGui.Dummy(new Vector2(0, thickness * ImGuiHelpers.GlobalScale));
+    }
+
+    public void MediumText(string text, Vector4? color = null)
+    {
+        FontText(text, MediumFont, color);
+    }
+
+    public bool MediumTreeNode(string label, Vector4? textColor = null, float lineWidth = 2f, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.SpanAvailWidth)
+    {
+        using var font = MediumFont.Push();
+        var lineColor = textColor ?? ImGuiColors.DalamudWhite;
+
+        var textSize = ImGui.CalcTextSize(label);
+        var cursorScreen = ImGui.GetCursorScreenPos();
+        var cursorLocal = ImGui.GetCursorPos();
+
+        ImGui.GetWindowDrawList().AddLine(
+            new Vector2(cursorScreen.X, cursorScreen.Y),
+            new Vector2(cursorScreen.X, cursorScreen.Y + textSize.Y),
+            ImGui.GetColorU32(lineColor),
+            lineWidth * ImGuiHelpers.GlobalScale
+        );
+
+        ImGui.SetCursorPosX(cursorLocal.X + 6f);
+        using var color = ImRaii.PushColor(ImGuiCol.Text, lineColor);
+
+        return ImGui.TreeNodeEx(label, flags);
     }
 
     public void BooleanToColoredIcon(bool value, bool inline = true)
@@ -1085,6 +1169,7 @@ public partial class UiSharedService : DisposableMediatorSubscriberBase
 
         UidFont.Dispose();
         GameFont.Dispose();
+        MediumFont.Dispose();
     }
 
     private static void CenterWindow(float width, float height, ImGuiCond cond = ImGuiCond.None)
