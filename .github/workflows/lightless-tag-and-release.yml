@@ -120,6 +120,16 @@ jobs:
           
           $repoJson | ConvertTo-Json -Depth 100 | Set-Content $repoJsonPath
 
+          # Convert to JSON and force array brackets if necessary
+          $repoJsonString = $repoJson | ConvertTo-Json -Depth 100
+        
+          # If the output is not an array, wrap it manually
+          if ($repoJsonString.Trim().StartsWith('{')) {
+              $repoJsonString = "[$repoJsonString]"
+          }
+        
+          $repoJsonString | Set-Content $repoJsonPath
+
     - name: Commit and push to LightlessSync
       run: |
           cd LightlessSyncRepo/LightlessSync
