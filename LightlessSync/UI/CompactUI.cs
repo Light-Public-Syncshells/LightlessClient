@@ -149,10 +149,10 @@ public class CompactUi : WindowMediatorSubscriberBase
                 var uidTextSize = ImGui.CalcTextSize(unsupported);
                 ImGui.SetCursorPosX((ImGui.GetWindowContentRegionMax().X + ImGui.GetWindowContentRegionMin().X) / 2 - uidTextSize.X / 2);
                 ImGui.AlignTextToFramePadding();
-                ImGui.TextColored(ImGuiColors.DalamudRed, unsupported);
+                ImGui.TextColored(UIColors.Get("DimRed"), unsupported);
             }
             UiSharedService.ColorTextWrapped($"Your Lightless Sync installation is out of date, the current version is {ver.Major}.{ver.Minor}.{ver.Build}. " +
-                $"It is highly recommended to keep Lightless Sync up to date. Open /xlplugins and update the plugin.", ImGuiColors.DalamudRed);
+                $"It is highly recommended to keep Lightless Sync up to date. Open /xlplugins and update the plugin.", UIColors.Get("DimRed"));
         }
 
         if (!_ipcManager.Initialized)
@@ -164,12 +164,12 @@ public class CompactUi : WindowMediatorSubscriberBase
                 var uidTextSize = ImGui.CalcTextSize(unsupported);
                 ImGui.SetCursorPosX((ImGui.GetWindowContentRegionMax().X + ImGui.GetWindowContentRegionMin().X) / 2 - uidTextSize.X / 2);
                 ImGui.AlignTextToFramePadding();
-                ImGui.TextColored(ImGuiColors.DalamudRed, unsupported);
+                ImGui.TextColored(UIColors.Get("DimRed"), unsupported);
             }
             var penumAvailable = _ipcManager.Penumbra.APIAvailable;
             var glamAvailable = _ipcManager.Glamourer.APIAvailable;
 
-            UiSharedService.ColorTextWrapped($"One or more Plugins essential for Lightless operation are unavailable. Enable or update following plugins:", ImGuiColors.DalamudRed);
+            UiSharedService.ColorTextWrapped($"One or more Plugins essential for Lightless operation are unavailable. Enable or update following plugins:", UIColors.Get("DimRed"));
             using var indent = ImRaii.PushIndent(10f);
             if (!penumAvailable)
             {
@@ -185,7 +185,7 @@ public class CompactUi : WindowMediatorSubscriberBase
         }
 
         using (ImRaii.PushId("header")) DrawUIDHeader();
-        ImGui.Separator();
+        _uiSharedService.ColoredSeparator(UIColors.Get("LightlessPurple"), 2f);
         using (ImRaii.PushId("serverstatus")) DrawServerStatus();
         ImGui.Separator();
 
@@ -284,7 +284,7 @@ public class CompactUi : WindowMediatorSubscriberBase
         else
         {
             ImGui.AlignTextToFramePadding();
-            ImGui.TextColored(ImGuiColors.DalamudRed, "Not connected to any server");
+            ImGui.TextColored(UIColors.Get("DimRed"), "Not connected to any server");
         }
 
         if (printShard)
@@ -587,21 +587,21 @@ public class CompactUi : WindowMediatorSubscriberBase
     {
         return _apiController.ServerState switch
         {
-            ServerState.Connecting => ImGuiColors.DalamudYellow,
-            ServerState.Reconnecting => ImGuiColors.DalamudRed,
+            ServerState.Connecting => UIColors.Get("LightlessYellow"),
+            ServerState.Reconnecting => UIColors.Get("DimRed"),
             ServerState.Connected => UIColors.Get("LightlessPurple"),
-            ServerState.Disconnected => ImGuiColors.DalamudYellow,
-            ServerState.Disconnecting => ImGuiColors.DalamudYellow,
-            ServerState.Unauthorized => ImGuiColors.DalamudRed,
-            ServerState.VersionMisMatch => ImGuiColors.DalamudRed,
-            ServerState.Offline => ImGuiColors.DalamudRed,
-            ServerState.RateLimited => ImGuiColors.DalamudYellow,
-            ServerState.NoSecretKey => ImGuiColors.DalamudYellow,
-            ServerState.MultiChara => ImGuiColors.DalamudYellow,
-            ServerState.OAuthMisconfigured => ImGuiColors.DalamudRed,
-            ServerState.OAuthLoginTokenStale => ImGuiColors.DalamudRed,
-            ServerState.NoAutoLogon => ImGuiColors.DalamudYellow,
-            _ => ImGuiColors.DalamudRed
+            ServerState.Disconnected => UIColors.Get("LightlessYellow"),
+            ServerState.Disconnecting => UIColors.Get("LightlessYellow"),
+            ServerState.Unauthorized => UIColors.Get("DimRed"),
+            ServerState.VersionMisMatch => UIColors.Get("DimRed"),
+            ServerState.Offline => UIColors.Get("DimRed"),
+            ServerState.RateLimited => UIColors.Get("LightlessYellow"),
+            ServerState.NoSecretKey => UIColors.Get("LightlessYellow"),
+            ServerState.MultiChara => UIColors.Get("LightlessYellow"),
+            ServerState.OAuthMisconfigured => UIColors.Get("DimRed"),
+            ServerState.OAuthLoginTokenStale => UIColors.Get("DimRed"),
+            ServerState.NoAutoLogon => UIColors.Get("LightlessYellow"),
+            _ => UIColors.Get("DimRed")
         };
     }
 
