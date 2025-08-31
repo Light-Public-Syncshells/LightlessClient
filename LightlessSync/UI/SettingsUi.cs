@@ -815,7 +815,7 @@ public class SettingsUi : WindowMediatorSubscriberBase
 
         ImGui.Separator();
 
-        if (_uiShared.MediumTreeNode("Validation", UIColors.Get("DimRed")))
+        if (_uiShared.MediumTreeNode("Storage Clearing", UIColors.Get("DimRed")))
         {
             ImGui.TextUnformatted("To clear the local storage accept the following disclaimer");
             ImGui.Indent();
