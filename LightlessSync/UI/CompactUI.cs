@@ -38,6 +38,7 @@ public class CompactUi : WindowMediatorSubscriberBase
     private readonly PairManager _pairManager;
     private readonly SelectTagForPairUi _selectGroupForPairUi;
     private readonly SelectPairForTagUi _selectPairsForGroupUi;
+    private readonly RenameTagUi _renameTagUi;
     private readonly IpcManager _ipcManager;
     private readonly ServerConfigurationManager _serverManager;
     private readonly TopTabMenu _tabMenu;
@@ -56,7 +57,7 @@ public class CompactUi : WindowMediatorSubscriberBase
 
     public CompactUi(ILogger<CompactUi> logger, UiSharedService uiShared, LightlessConfigService configService, ApiController apiController, PairManager pairManager,
         ServerConfigurationManager serverManager, LightlessMediator mediator, FileUploadManager fileTransferManager,
-        TagHandler tagHandler, DrawEntityFactory drawEntityFactory, SelectTagForPairUi selectTagForPairUi, SelectPairForTagUi selectPairForTagUi,
+        TagHandler tagHandler, DrawEntityFactory drawEntityFactory, SelectTagForPairUi selectTagForPairUi, SelectPairForTagUi selectPairForTagUi, RenameTagUi renameTagUi,
         PerformanceCollectorService performanceCollectorService, IpcManager ipcManager)
         : base(logger, mediator, "###LightlessSyncMainUI", performanceCollectorService)
     {
@@ -70,6 +71,7 @@ public class CompactUi : WindowMediatorSubscriberBase
         _drawEntityFactory = drawEntityFactory;
         _selectGroupForPairUi = selectTagForPairUi;
         _selectPairsForGroupUi = selectPairForTagUi;
+        _renameTagUi = renameTagUi;
         _ipcManager = ipcManager;
         _tabMenu = new TopTabMenu(Mediator, _apiController, _pairManager, _uiSharedService);
 
@@ -198,6 +200,7 @@ public class CompactUi : WindowMediatorSubscriberBase
             using (ImRaii.PushId("transfers")) DrawTransfers();
             _transferPartHeight = ImGui.GetCursorPosY() - pairlistEnd - ImGui.GetTextLineHeight();
             using (ImRaii.PushId("group-user-popup")) _selectPairsForGroupUi.Draw(_pairManager.DirectPairs);
+            using (ImRaii.PushId("group-user-edit")) _renameTagUi.Draw(_pairManager.DirectPairs);
             using (ImRaii.PushId("grouping-popup")) _selectGroupForPairUi.Draw();
         }
 
