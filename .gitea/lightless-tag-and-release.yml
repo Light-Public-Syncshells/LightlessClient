@@ -1,0 +1,182 @@
+name: Tag and Release Lightless
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  PLUGIN_NAME: LightlessSync
+  DOTNET_VERSION: 9.x
+
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Lightless
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: true
+
+    - name: Setup .NET 9 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.x
+
+    - name: Download Dalamud
+      run: |
+        cd /
+        mkdir -p root/.xlcore/dalamud/Hooks/dev
+        curl -O https://goatcorp.github.io/dalamud-distrib/stg/latest.zip
+        unzip latest.zip -d /root/.xlcore/dalamud/Hooks/dev
+
+    - name: Lets Build Lightless!
+      run: | 
+          dotnet restore
+          dotnet build --configuration Release --no-restore
+          dotnet publish --configuration Release --no-build
+
+    - name: Get version
+      id: package_version
+      uses: KageKirin/get-csproj-version@v0
+      with:
+        file: LightlessSync/LightlessSync.csproj
+
+    - name: Display version
+      run: | 
+          echo "Version: ${{ steps.package_version.outputs.version }}"
+
+    - name: Prepare Lightless Client
+      run: |
+        PUBLISH_PATH="/workspace/Lightless-Sync/LightlessClient/LightlessSync/bin/x64/Release/publish/"
+        if [ -d "$PUBLISH_PATH" ]; then
+          rm -rf "$PUBLISH_PATH"
+          echo "Removed $PUBLISH_PATH"
+        else
+          echo "$PUBLISH_PATH does not exist, nothing to remove."
+        fi
+
+        mkdir -p output
+        (cd /workspace/Lightless-Sync/LightlessClient/LightlessSync/bin/x64/Release/ && zip -r $OLDPWD/output/LightlessClient.zip *)
+
+    - name: Create Git tag if not exists
+      run: |
+        tag="${{ steps.package_version.outputs.version }}"
+        git fetch --tags
+        if ! git tag -l "$tag" | grep -q "$tag"; then
+          echo "Tag $tag does not exist. Creating and pushing..."
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git tag "$tag"
+          git push origin "$tag"
+        else
+          echo "Tag $tag already exists. Skipping tag creation."
+        fi
+
+    - name: Create Release
+      id: create_release
+      run: |
+          echo "=== Searching for existing release ${{ steps.package_version.outputs.version }}==="
+
+          release_id=$(curl -s -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            "https://git.lightless-sync.org/api/v1/repos/${GITHUB_REPOSITORY}/releases/tags/${{ steps.package_version.outputs.version }}" | jq -r .id)
+
+          if [ "$release_id" != "null" ]; then
+            echo "=== Deleting existing release ${{ steps.package_version.outputs.version }}==="
+            curl -X DELETE -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+              "https://git.lightless-sync.org/api/v1/repos/${GITHUB_REPOSITORY}/releases/$release_id"
+          fi
+
+          echo "=== Creating new release ${{ steps.package_version.outputs.version }}==="
+          response=$(
+            curl --fail-with-body -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -d '{
+              "tag_name": "${{ steps.package_version.outputs.version }}",
+              "name": "${{ steps.package_version.outputs.version }}",
+              "draft": false,
+              "prerelease": false
+            }' \
+           "https://git.lightless-sync.org/api/v1/repos/${GITHUB_REPOSITORY}/releases"
+            )
+
+          release_id=$(echo "$response" | jq -r .id)
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+
+    - name: Upload Assets to release
+      run: |
+          curl --fail-with-body -s -X POST \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -F "attachment=@output/LightlessClient.zip" \
+           "https://git.lightless-sync.org/api/v1/repos/${GITHUB_REPOSITORY}/releases/${{ steps.create_release.outputs.release_id }}/assets"
+
+    - name: Clone plugin hosting repo
+      run: |
+          mkdir LightlessSyncRepo
+          cd LightlessSyncRepo
+          git clone https://git.lightless-sync.org/${{ gitea.repository_owner }}/LightlessSync.git
+      env:
+        GIT_TERMINAL_PROMPT: 0
+
+    - name: Update plogonmaster.json with version
+      env:
+          VERSION: ${{ steps.package_version.outputs.version }}
+      run: |
+            set -e
+
+            pluginJsonPath="${PLUGIN_NAME}/bin/x64/Release/${PLUGIN_NAME}.json"
+            repoJsonPath="LightlessSyncRepo/LightlessSync/plogonmaster.json"
+            version="${VERSION}"
+            downloadUrl="https://git.lightless-sync.org/${{ gitea.repository_owner }}/LightlessClient/releases/download/$version/LightlessClient.zip"
+
+            # Read plugin JSON
+            pluginJson=$(cat "$pluginJsonPath")
+            internalName=$(jq -r '.InternalName' <<< "$pluginJson")
+            dalamudApiLevel=$(jq -r '.DalamudApiLevel' <<< "$pluginJson")
+
+            # Read repo JSON (force array if not already)
+            repoJsonRaw=$(cat "$repoJsonPath")
+            if echo "$repoJsonRaw" | jq 'type' | grep -q '"array"'; then
+              repoJson="$repoJsonRaw"
+            else
+              repoJson="[$repoJsonRaw]"
+            fi
+
+            # Update matching plugin entry
+            updatedRepoJson=$(jq \
+              --arg internalName "$internalName" \
+              --arg dalamudApiLevel "$dalamudApiLevel" \
+              --arg version "$version" \
+              --arg downloadUrl "$downloadUrl" \
+              '
+              map(
+                if .InternalName == $internalName
+                then
+                  .DalamudApiLevel = $dalamudApiLevel
+                  | .AssemblyVersion = $version
+                  | .DownloadLinkInstall = $downloadUrl
+                  | .DownloadLinkTesting = $downloadUrl
+                  | .DownloadLinkUpdate = $downloadUrl
+                else
+                  .
+                end
+              )
+              ' <<< "$repoJson")
+
+            # Write back to file
+            echo "$updatedRepoJson" > "$repoJsonPath"
+            # Output the content of the file
+            cat "$repoJsonPath"
+
+    - name: Commit and push to LightlessSync
+      run: |
+          cd LightlessSyncRepo/LightlessSync
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Update ${{ env.PLUGIN_NAME }} to ${{ steps.package_version.outputs.version }}"
+          git push https://x-access-token:${{ secrets.AUTOMATION_TOKEN }}@git.lightless-sync.org/${{ gitea.repository_owner }}/LightlessSync.git HEAD:main
