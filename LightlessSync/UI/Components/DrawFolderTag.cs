@@ -13,13 +13,15 @@ public class DrawFolderTag : DrawFolderBase
 {
     private readonly ApiController _apiController;
     private readonly SelectPairForTagUi _selectPairForTagUi;
+    private readonly RenameTagUi _renameTagUi;
 
     public DrawFolderTag(string id, IImmutableList<DrawUserPair> drawPairs, IImmutableList<Pair> allPairs,
-        TagHandler tagHandler, ApiController apiController, SelectPairForTagUi selectPairForTagUi, UiSharedService uiSharedService)
+        TagHandler tagHandler, ApiController apiController, SelectPairForTagUi selectPairForTagUi, RenameTagUi renameTagUi, UiSharedService uiSharedService)
         : base(id, drawPairs, allPairs, tagHandler, uiSharedService)
     {
         _apiController = apiController;
         _selectPairForTagUi = selectPairForTagUi;
+        _renameTagUi = renameTagUi;
     }
 
     protected override bool RenderIfEmpty => _id switch
@@ -100,12 +102,15 @@ public class DrawFolderTag : DrawFolderBase
     protected override void DrawMenu(float menuWidth)
     {
         ImGui.TextUnformatted("Group Menu");
-        if (_uiSharedService.IconTextButton(FontAwesomeIcon.Users, "Select Pairs", menuWidth, true))
+        if (_uiSharedService.IconTextButton(FontAwesomeIcon.Users, "Select Pairs", menuWidth, isInPopup: true))
         {
             _selectPairForTagUi.Open(_id);
         }
-        UiSharedService.AttachToolTip("Select Individual Pairs for this Pair Group");
-        if (_uiSharedService.IconTextButton(FontAwesomeIcon.Trash, "Delete Pair Group", menuWidth, true) && UiSharedService.CtrlPressed())
+        if (_uiSharedService.IconTextButton(FontAwesomeIcon.Edit, "Rename Pair Group", menuWidth, isInPopup: true))
+        {
+            _renameTagUi.Open(_id);
+        }
+        if (_uiSharedService.IconTextButton(FontAwesomeIcon.Trash, "Delete Pair Group", menuWidth, isInPopup: true) && UiSharedService.CtrlPressed())
         {
             _tagHandler.RemoveTag(_id);
         }

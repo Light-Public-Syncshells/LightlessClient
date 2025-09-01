@@ -8,9 +8,10 @@ namespace LightlessSync.UI
         private static readonly Dictionary<string, string> HexColors = new(StringComparer.OrdinalIgnoreCase)
         {
             { "LightlessPurple", "#ad8af5" },
-            { "LightlessBlue", "#64c7e8" },
-            { "PairBlue", "#4e98b1" },
-            { "DimRed", "#bd0000" },
+            { "LightlessBlue", "#a6c2ff" },
+            { "LightlessYellow", "#ffe97a" },
+            { "PairBlue", "#88a2db" },
+            { "DimRed", "#d44444" },
         };
 
         public static Vector4 Get(string name)

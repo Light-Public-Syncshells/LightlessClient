@@ -23,11 +23,12 @@ public class DrawEntityFactory
     private readonly PlayerPerformanceConfigService _playerPerformanceConfigService;
     private readonly CharaDataManager _charaDataManager;
     private readonly SelectTagForPairUi _selectTagForPairUi;
+    private readonly RenameTagUi _renameTagUi;
     private readonly TagHandler _tagHandler;
     private readonly IdDisplayHandler _uidDisplayHandler;
 
     public DrawEntityFactory(ILogger<DrawEntityFactory> logger, ApiController apiController, IdDisplayHandler uidDisplayHandler,
-        SelectTagForPairUi selectTagForPairUi, LightlessMediator mediator,
+        SelectTagForPairUi selectTagForPairUi, RenameTagUi renameTagUi, LightlessMediator mediator,
         TagHandler tagHandler, SelectPairForTagUi selectPairForTagUi,
         ServerConfigurationManager serverConfigurationManager, UiSharedService uiSharedService,
         PlayerPerformanceConfigService playerPerformanceConfigService, CharaDataManager charaDataManager)
@@ -36,6 +37,7 @@ public class DrawEntityFactory
         _apiController = apiController;
         _uidDisplayHandler = uidDisplayHandler;
         _selectTagForPairUi = selectTagForPairUi;
+        _renameTagUi = renameTagUi;
         _mediator = mediator;
         _tagHandler = tagHandler;
         _selectPairForTagUi = selectPairForTagUi;
@@ -58,8 +60,8 @@ public class DrawEntityFactory
         Dictionary<Pair, List<GroupFullInfoDto>> filteredPairs,
         IImmutableList<Pair> allPairs)
     {
-        return new(tag, filteredPairs.Select(u => CreateDrawPair(tag, u.Key, u.Value, null)).ToImmutableList(),
-            allPairs, _tagHandler, _apiController, _selectPairForTagUi, _uiSharedService);
+        return new(tag, filteredPairs.Select(u => CreateDrawPair(tag, u.Key, u.Value, currentGroup: null)).ToImmutableList(),
+            allPairs, _tagHandler, _apiController, _selectPairForTagUi, _renameTagUi, _uiSharedService);
     }
 
     public DrawUserPair CreateDrawPair(string id, Pair user, List<GroupFullInfoDto> groups, GroupFullInfoDto? currentGroup)

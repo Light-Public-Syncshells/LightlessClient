@@ -102,7 +102,7 @@ public class PermissionWindowUI : WindowMediatorSubscriberBase
         {
             _ownPermissions.SetDisableAnimations(disableAnimations);
         }
-        _uiSharedService.DrawHelpText("Disabling sounds will remove all animations synced with this user on both sides." + UiSharedService.TooltipSeparator
+        _uiSharedService.DrawHelpText("Disabling animations will remove all animations synced with this user on both sides." + UiSharedService.TooltipSeparator
             + "Note: this is bidirectional, either user disabling animation sync will stop animation sync on both sides.");
         using (ImRaii.PushIndent(indentSize, false))
         {
@@ -116,7 +116,7 @@ public class PermissionWindowUI : WindowMediatorSubscriberBase
         {
             _ownPermissions.SetDisableVFX(disableVfx);
         }
-        _uiSharedService.DrawHelpText("Disabling sounds will remove all VFX synced with this user on both sides." + UiSharedService.TooltipSeparator
+        _uiSharedService.DrawHelpText("Disabling VFX will remove all VFX synced with this user on both sides." + UiSharedService.TooltipSeparator
             + "Note: this is bidirectional, either user disabling VFX sync will stop VFX sync on both sides.");
         using (ImRaii.PushIndent(indentSize, false))
         {

@@ -130,6 +130,7 @@ public sealed class Plugin : IDalamudPlugin
                 s.GetRequiredService<CharaDataManager>(),
                 s.GetRequiredService<LightlessMediator>()));
             collection.AddSingleton<SelectPairForTagUi>();
+            collection.AddSingleton<RenameTagUi>();
             collection.AddSingleton((s) => new EventAggregator(pluginInterface.ConfigDirectory.FullName,
                 s.GetRequiredService<ILogger<EventAggregator>>(), s.GetRequiredService<LightlessMediator>()));
             collection.AddSingleton((s) => new DalamudUtilService(s.GetRequiredService<ILogger<DalamudUtilService>>(),
